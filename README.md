@@ -1,7 +1,7 @@
 # V2Net
 
 ## Introduction
-V2Net is a missing network debug tool for macOS.
+V2Net is a network tool for macOS.
 
 It intergrates popular proxy/bypass/capture tools, and it is easy to add new extensions without coding.
 

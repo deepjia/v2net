@@ -1,0 +1,67 @@
+{
+  "policy" : {
+    "levels" : {"0" : {"uplinkOnly" : 0}}
+  },
+  "dns" : {
+    "servers" : ["localhost"]
+  },
+  "outboundDetour" : [
+    {
+      "protocol" : "freedom",
+      "tag" : "direct",
+      "settings" : {}
+    }
+  ],
+  "inbound" : {
+    "listen" : "127.0.0.1",
+    "port" : {{ ExtensionPort }},
+    "protocol" : "socks",
+    "settings" : {"udp" : false}
+  },
+  "log" : {
+    "loglevel" : "warning",
+    "access" : "/dev/null"
+  },
+  "routing" : {
+    "strategy" : "rules",
+    "settings" : {
+      "domainStrategy" : "IPIfNonMatch",
+      "rules" : []
+    }
+  },
+  "outbound" : {
+    "protocol" : "vmess",
+    "settings" : {
+      "vnext" : [
+        {
+          "address" : "{{ ServerAddress }}",
+          "port" : {{ ServerPort }},
+          "users" : [
+            {
+              "id" : "{{ ServicePassword }}",
+              "alterId" : 64,
+              "security" : "auto",
+              "level" : 0
+            }
+          ]
+        }
+      ]
+    },
+    "streamSettings" : {
+      "network" : "ws",
+      "tcpSettings" : {
+        "header" : {"type" : "none"},
+        "connectionReuse" : false
+      },
+      "security" : "tls",
+      "tlsSettings" : {
+        "serverName" : "{{ ServerAddress }}",
+        "allowInsecure" : false
+      },
+      "wsSettings" : {
+        "path" : "{{ WSPath }}",
+        "connectionReuse" : false
+      }
+    }
+  }
+}

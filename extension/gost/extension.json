@@ -1,0 +1,12 @@
+{
+  "bin": "./extension/gost/bin/gost",
+  "args": "-L=:{{ ExtensionPort }}{% if ServerPort %} -F=socks5://{{ ServerAddress }}:{{ ServerPort }}{% if Bypass %}?bypass=./profile/{{ Bypass }}{% endif %}{% endif %}",
+  "exitargs":"",
+  "keys": ["Bypass"],
+  "http": true,
+  "socks": true,
+  "render": {},
+  "default": {
+    "ServerAddress": "127.0.0.1"
+  }
+}

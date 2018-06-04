@@ -1,0 +1,16 @@
+{
+  "bin": "v2ray",
+  "args": "-config ./extension/vmess/config.json",
+  "keys": ["ServerAddress", "ServerPort", "WSPath", "ServicePassword"],
+  "exitargs":"",
+  "http": false,
+  "socks": true,
+  "render": {"template.jinja": "config.json"},
+  "default": {
+    "ServerAddress": "127.0.0.1",
+    "ServerPort": "443",
+    "WSPath": "/ws",
+    "Timeout": "60",
+    "TFO": "true"
+  }
+}

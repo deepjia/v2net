@@ -1,0 +1,10 @@
+{
+  "bin": "w2",
+  "args": "start -p {{ ExtensionPort }} -D ./extension/whistle",
+  "exitargs": "stop",
+  "keys": [],
+  "http": true,
+  "socks": true,
+  "render": {"template.jinja": ".whistle/rules/properties"},
+  "default": {}
+}

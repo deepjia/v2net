@@ -42,9 +42,6 @@ current = {
     'capture': None
 }
 system = True if profile.get('General','system').strip().lower()=='true' else False
-current_proxy = None
-current_bypass = None
-current_capture = None
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 

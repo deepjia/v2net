@@ -14,7 +14,6 @@ This is a pre-alpha version.
 Whistle: Node.js
 
 ```bash
-brew install python
 brew install node
 ```
 ## Usage

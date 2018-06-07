@@ -17,8 +17,8 @@ OPTIONS = {
         'CFBundleName': APP_NAME,
         'CFBundleDisplayName': APP_NAME,
         'LSUIElement': True,
-        'CFBundleVersion': "0.1.1",
-        'CFBundleShortVersionString': "0.1.1"
+        'CFBundleVersion': "0.1.2",
+        'CFBundleShortVersionString': "0.1.2"
     }
 }
 

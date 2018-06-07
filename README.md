@@ -5,9 +5,7 @@ V2Net is a network tool for macOS.
 
 Some popular proxy(ss & vmess), bypass(gost) and capture(whistle) tools are intergrated, with the ability of adding new extensions without coding.
 
-This is an early pre-alpha version.
-
-App package will come soon.
+This is a pre-alpha version.
 
 ## Snapshot
 ![2018-06-07 3 45 31](https://user-images.githubusercontent.com/1452602/41086345-558d0a98-6a6c-11e8-8558-5a6a5c333893.png)

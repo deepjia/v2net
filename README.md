@@ -10,7 +10,8 @@ This is an early pre-alpha version.
 App package will come soon.
 
 ## Snapshot
-![2018-06-04 2 47 51](https://user-images.githubusercontent.com/1452602/40911031-5203476e-6820-11e8-813f-e2012d2599b3.png)
+![2018-06-07 3 45 31](https://user-images.githubusercontent.com/1452602/41086345-558d0a98-6a6c-11e8-8558-5a6a5c333893.png)
+![2018-06-07 3 54 12](https://user-images.githubusercontent.com/1452602/41086259-050a2b46-6a6c-11e8-880b-8a6ca21be209.png)
 ## Prerequisites
 Whistle: Node.js
 
@@ -21,9 +22,10 @@ brew install node
 ## Usage
 Download compiled app:
 
-https://github.com/deepjia/v2net/releases
+[https://github.com/deepjia/v2net/releases](https://github.com/deepjia/v2net/releases)
 
 Or run python script:
+
 ```bash
 git clone https://github.com/deepjia/v2net.git
 cd v2net

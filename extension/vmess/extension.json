@@ -1,5 +1,5 @@
 {
-  "bin": "v2ray",
+  "bin": "./extension/vmess/bin/v2ray",
   "args": "-config ./extension/vmess/config.json",
   "keys": ["ServerAddress", "ServerPort", "WSPath", "ServicePassword"],
   "exitargs":"",

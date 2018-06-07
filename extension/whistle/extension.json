@@ -1,6 +1,7 @@
 {
   "bin": "w2",
   "args": "start -p {{ ExtensionPort }} -D ./extension/whistle",
+  "url": "http://127.0.0.1:{{ ExtensionPort }}/#Network",
   "exitargs": "stop",
   "keys": [],
   "http": true,

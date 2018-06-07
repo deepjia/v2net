@@ -14,21 +14,17 @@ This is a pre-alpha version.
 ## Prerequisites
 Whistle: Node.js
 
+Install with homebrew:
+
 ```bash
 brew install node
+# or:
+# brew install node@8
 ```
+
+Or download installer from [https://nodejs.org/en/](https://nodejs.org/en/)
+
 ## Usage
-Download compiled app:
+Download latest release:
 
 [https://github.com/deepjia/v2net/releases](https://github.com/deepjia/v2net/releases)
-
-Or run python script:
-
-```bash
-git clone https://github.com/deepjia/v2net.git
-cd v2net
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requrements.txt
-./v2net.py
-```

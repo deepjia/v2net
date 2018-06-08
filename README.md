@@ -3,18 +3,28 @@
 ## Introduction
 V2Net is a network tool for macOS.
 
-Some popular proxy(ss-libev, v2ray & gost), bypass(gost) and capture(whistle) tools are intergrated, with the ability of adding new extensions without coding.
+Some popular network tools are intergrated, with the ability of adding new extensions without coding:
+
+* Proxy:
+[ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
+[v2ray](https://www.v2ray.com)
+[gost](https://github.com/ginuerzh/gost/tree/2.6)
+* Bypass:
+[gost](https://github.com/ginuerzh/gost/tree/2.6)
+* Capture:
+[whistle](https://github.com/avwo/whistle)
 
 This is a pre-alpha version.
 
 ## Snapshot
-![2018-06-07 3 45 31](https://user-images.githubusercontent.com/1452602/41086345-558d0a98-6a6c-11e8-8558-5a6a5c333893.png)
-![2018-06-07 3 54 12](https://user-images.githubusercontent.com/1452602/41086259-050a2b46-6a6c-11e8-880b-8a6ca21be209.png)
+![2018-06-08 5 45 11](https://user-images.githubusercontent.com/1452602/41151597-ce2d8d7e-6b43-11e8-8010-7511cfefc035.png)
+
+![2018-06-08 5 51 25](https://user-images.githubusercontent.com/1452602/41151903-b3564922-6b44-11e8-9bf1-c8271bfeda94.png)
 
 ## Prerequisites
-Whistle: Node.js
+If you want to use the whistle extension, you will need node.
 
-Install with homebrew:
+Install node with homebrew:
 
 ```bash
 brew install node

@@ -8,7 +8,7 @@ import pyperclip
 from jinja2 import Template
 from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, QThread
 from PyQt5.QtWidgets import *
 
 class Config:
@@ -98,8 +98,10 @@ class Extension:
                     f.write(content)
                     f.truncate()
         print('Starting...')
-        self.process = subprocess.Popen([self.bin, *self.args])
-        self.pid = self.process.pid
+        #self.process = subprocess.Popen([self.bin, *self.args])
+        self.thread = SubprocessThread(self)
+        self.thread.start()
+        #self.pid = self.process.pid
         if system: setproxy()
 
 
@@ -257,6 +259,14 @@ class Dashboard(QMainWindow):
         self.browser.setUrl(QUrl(url))
         self.show()
 
+
+class SubprocessThread(QThread):
+    def __init__(self, obj):
+        super().__init__()
+        self.obj = obj
+
+    def run(self):
+        self.obj.process = subprocess.Popen([self.obj.bin, *self.obj.args])
 
 
 def quitapp():

@@ -9,12 +9,13 @@ script:
 - python3 setup.py py2app
 before_deploy:
 - brew install p7zip
-- cd dist && 7za a V2Net.7a V2Net.app
+- cd dist
+- 7za a V2Net.7z V2Net.app
 deploy:
   provider: releases
   api_key:
     secure: ${GH_TOKEN}
-  file: "./dist/V2Net.zip"
+  file: "V2Net.7z"
   skip_cleanup: true
   on:
     repo: deepjia/v2net

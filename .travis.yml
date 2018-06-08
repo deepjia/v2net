@@ -3,12 +3,12 @@ language: generic
 before_install:
 - brew update
 - brew outdated python || brew upgrade python
-- brew install p7zip
 install:
 - pip3 install -r requirements.txt
 script:
 - python3 setup.py py2app
 before_deploy:
+- brew install p7zip
 - cd dist && 7za a V2Net.7a V2Net.app
 deploy:
   provider: releases

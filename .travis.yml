@@ -1,16 +1,18 @@
 os: osx
 language: generic
-env: TOXENV=py36
-install: pip install -r requirements.txt
+before_install:
+- brew install python
+install:
+- pip3 install -r requirements.txt
 script:
-- python setup.py py2app
+- python3 setup.py py2app
 before_deploy:
-- cd dist && zip -r v2net.zip v2net.app
+- cd dist && zip -9 -r V2Net.zip V2Net.app
 deploy:
   provider: releases
   api_key:
     secure: ${GH_TOKEN}
-  file: "./dist/v2net.zip"
+  file: "./dist/V2Net.zip"
   skip_cleanup: true
   on:
     repo: deepjia/v2net

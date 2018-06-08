@@ -1,13 +1,15 @@
 os: osx
 language: generic
 before_install:
-- brew install python
+- brew update
+- brew outdated python || brew upgrade python
+- brew install p7zip
 install:
 - pip3 install -r requirements.txt
 script:
 - python3 setup.py py2app
 before_deploy:
-- cd dist && zip -9 -r V2Net.zip V2Net.app
+- cd dist && 7za a V2Net.7a V2Net.app
 deploy:
   provider: releases
   api_key:

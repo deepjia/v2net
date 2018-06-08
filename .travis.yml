@@ -12,8 +12,7 @@ before_deploy:
 - 7za a V2Net.7z ./dist/V2Net.app
 deploy:
   provider: releases
-  api_key:
-    secure: ${GH_TOKEN}
+  api_key: ${GH_TOKEN}
   file: "V2Net.7z"
   skip_cleanup: true
   on:

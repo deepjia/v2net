@@ -79,7 +79,6 @@ class Extension:
         # new json string
         self.jinja_dict = dict(self.default, **dict(filter(lambda x: x[1], zip(self.keys, self.values))))
         self.port = self.setport()
-        self.QAction.setText(self.name + " (" + self.port + ")")
         self.jinja_dict['ExtensionPort'] = self.port
         self.json = json.loads(Template(json_str).render(**self.jinja_dict))
         print(self.json)
@@ -139,9 +138,11 @@ class Proxy(Extension):
         current['proxy'] = self
         profile.write('General', 'proxy', self.name)
         super().select()
+        self.menus_to_enable[0].setText("ᴘʀᴏxʏ: " + self.port)
 
     def stop(self):
         super().stop()
+        self.menus_to_enable[0].setText("ᴘʀᴏxʏ")
         current['proxy'] = None
 
     def disable(self, *args):
@@ -174,6 +175,7 @@ class Bypass(Extension):
         current['bypass'] = self
         profile.write('General', 'bypass', self.name)
         super().select()
+        self.menus_to_enable[0].setText("ʙʏᴘᴀss: " + self.port)
 
     def setport(self):
         if current["proxy"]:
@@ -190,6 +192,7 @@ class Bypass(Extension):
 
     def stop(self):
         super().stop()
+        self.menus_to_enable[0].setText("ʙʏᴘᴀss")
         current['bypass'] = None
         if current['proxy']:
             current['proxy'].select()
@@ -212,6 +215,7 @@ class Capture(Extension):
             current['capture'].stop()
         current['capture'] = self
         super().select()
+        self.menus_to_enable[0].setText("ᴄᴀᴘᴛᴜʀᴇ: " + self.port)
         profile.write('General', 'capture', self.name)
         window = Dashboard()
         self.menus_to_enable[1].triggered.connect(lambda :window.show_dashboard(self.extension.title(), self.url))
@@ -231,6 +235,7 @@ class Capture(Extension):
 
     def stop(self):
         super().stop()
+        self.menus_to_enable[0].setText("ᴄᴀᴘᴛᴜʀᴇ")
         current['capture'] = None
         if current['bypass']:
             current['bypass'].select()
@@ -361,7 +366,7 @@ def main():
         m_extension = QAction("Extension Folder")
         m_extension.triggered.connect(lambda: subprocess.call(["open", extension_path]))
         m_copy_shell = QAction("Copy Shell Command")
-        m_set_system = QAction("As System Proxy (" + profile.get('General', 'Port') + ")")
+        m_set_system = QAction("As System Proxy: " + profile.get('General', 'Port'))
         m_set_system.triggered.connect(lambda: setproxy_menu(m_set_system))
         m_copy_shell.triggered.connect(copy_shell)
         m_set_system.setCheckable(True)

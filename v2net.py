@@ -53,6 +53,7 @@ app.setQuitOnLastWindowClosed(False)
 class Extension:
     def __init__(self, extension, *menus_to_enable):
         #self.type = ''
+        self.process = None
         self.menus_to_enable = menus_to_enable
         self.extension, *self.values = [x.strip() for x in extension[1].split(',')]
         self.name = extension[0]
@@ -99,7 +100,7 @@ class Extension:
                     f.truncate()
         print('Starting...')
         #self.process = subprocess.Popen([self.bin, *self.args])
-        self.thread = SubprocessThread(self)
+        self.thread = RunThread(self)
         self.thread.start()
         #self.pid = self.process.pid
         if system: setproxy()
@@ -109,14 +110,8 @@ class Extension:
         pass
 
     def stop(self):
-        #global current
-        if self.exitargs:
-            subprocess.run([self.bin, *self.exitargs], check=True)
-        if self.process.returncode is None:
-            self.process.terminate()
-            self.process.wait()
-        #self.QAction.setChecked(False)
-        #current[self.type] = None
+        self.thread = StopThread(self)
+        self.thread.start()
         if system: setproxy()
 
     def disable(self, *menus_to_disable):
@@ -260,13 +255,28 @@ class Dashboard(QMainWindow):
         self.show()
 
 
-class SubprocessThread(QThread):
+class RunThread(QThread):
     def __init__(self, obj):
         super().__init__()
         self.obj = obj
 
     def run(self):
         self.obj.process = subprocess.Popen([self.obj.bin, *self.obj.args])
+
+
+class StopThread(QThread):
+    def __init__(self, obj):
+        super().__init__()
+        self.obj = obj
+
+    def run(self):
+        try:
+            if self.obj.exitargs:
+                subprocess.run([self.obj.bin, *self.obj.exitargs], check=True)
+        finally:
+            if self.obj.process.returncode is None:
+                self.obj.process.terminate()
+                self.obj.process.wait()
 
 
 def quitapp():

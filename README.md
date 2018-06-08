@@ -1,4 +1,5 @@
 # V2Net
+[![Build Status](https://travis-ci.org/deepjia/v2net.svg?branch=master)](https://travis-ci.org/deepjia/v2net)
 
 ## Introduction
 V2Net is a network tool for macOS.
@@ -14,7 +15,7 @@ Some popular network tools are intergrated, with the ability of adding new exten
 * Capture:
 [whistle](https://github.com/avwo/whistle)
 
-This is a pre-alpha version.
+This is an alpha version.
 
 ## Snapshot
 ![2018-06-08 5 45 11](https://user-images.githubusercontent.com/1452602/41151597-ce2d8d7e-6b43-11e8-8010-7511cfefc035.png)
@@ -32,9 +33,9 @@ brew install node
 # brew install node@8
 ```
 
-Or download installer from [https://nodejs.org/en/](https://nodejs.org/en/)
+Or download installer from <https://nodejs.org/en/>
 
 ## Usage
 Download latest release:
 
-[https://github.com/deepjia/v2net/releases](https://github.com/deepjia/v2net/releases)
+<https://github.com/deepjia/v2net/releases>

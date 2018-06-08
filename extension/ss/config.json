@@ -1,6 +1,6 @@
 {
-    "server":"127.0.0.1",
-    "server_port":1234,
+    "server":"server_ip",
+    "server_port":12345,
     "local_port":8114,
     "password":"password",
     "timeout":60,

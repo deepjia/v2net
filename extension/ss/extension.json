@@ -2,7 +2,7 @@
   "bin": "./extension/ss/bin/ss-local",
   "args": "-c ./extension/ss/config.json",
   "keys": ["ServerAddress", "ServerPort", "EncryptionMethod", "ServicePassword", "Timeout", "TFO"],
-  "exitargs":"",
+  "exitargs": "",
   "http": false,
   "socks": true,
   "render": {"template.jinja": "config.json"},

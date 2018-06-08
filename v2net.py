@@ -79,6 +79,7 @@ class Extension:
         # new json string
         self.jinja_dict = dict(self.default, **dict(filter(lambda x: x[1], zip(self.keys, self.values))))
         self.port = self.setport()
+        self.QAction.setText(self.name + " (" + self.port + ")")
         self.jinja_dict['ExtensionPort'] = self.port
         self.json = json.loads(Template(json_str).render(**self.jinja_dict))
         print(self.json)
@@ -127,10 +128,7 @@ class Extension:
 class Proxy(Extension):
     def __init__(self, *args):
         super().__init__(*args)
-        print(self.name)
-        print(selected['proxy'])
         if self.name == selected['proxy']:
-            print('select')
             self.select()
         #self.QAction.triggered.connect(self.select)
 
@@ -358,12 +356,12 @@ def main():
         menu.addAction(m_dashboard)
 
         # Common
-        m_profile = QAction("Open Profile Folder")
+        m_profile = QAction("Profile Folder")
         m_profile.triggered.connect(lambda: subprocess.call(["open", profile_path]))
-        m_extension = QAction("Open Extension Folder")
+        m_extension = QAction("Extension Folder")
         m_extension.triggered.connect(lambda: subprocess.call(["open", extension_path]))
         m_copy_shell = QAction("Copy Shell Command")
-        m_set_system = QAction("Set As System Proxy")
+        m_set_system = QAction("As System Proxy (" + profile.get('General', 'Port') + ")")
         m_set_system.triggered.connect(lambda: setproxy_menu(m_set_system))
         m_copy_shell.triggered.connect(copy_shell)
         m_set_system.setCheckable(True)

@@ -8,7 +8,7 @@ import pyperclip
 from jinja2 import Template
 from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QUrl, QThread
+from PyQt5.QtCore import QUrl, QThread, QMutex
 from PyQt5.QtWidgets import *
 
 class Config:
@@ -35,6 +35,19 @@ class Config:
         with open(self.file,'w+', encoding='UTF-8') as f:
             self.config.write(f)
 
+class Dashboard(QMainWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.resize(1280, 720)
+        self.browser = QWebEngineView()
+        self.setCentralWidget(self.browser)
+
+    def show_dashboard(self, extesnion_name, url):
+        self.setWindowTitle('[V2Net Dashboard] '+ extesnion_name +' Web Debugger')
+        self.browser.setUrl(QUrl(url))
+        self.show()
+
+
 base_path = os.path.dirname(os.path.realpath(__file__))
 extension_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')
@@ -48,12 +61,14 @@ current = {x:None for x in ('proxy', 'bypass', 'capture')}
 system = True if profile.get('General','system').strip().lower()=='true' else False
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
+window = Dashboard()
+mutex = QMutex()
 
 
-class Extension:
+class Extension(QThread):
     def __init__(self, extension, *menus_to_enable):
+        super().__init__()
         #self.type = ''
-        self.process = None
         self.menus_to_enable = menus_to_enable
         self.extension, *self.values = [x.strip() for x in extension[1].split(',')]
         self.name = extension[0]
@@ -62,6 +77,13 @@ class Extension:
         self.QAction.triggered.connect(self.select)
 
     def select(self):
+        self.start()
+
+    def run(self):
+        mutex.lock()
+        if current[self.role]:
+            print(self.role + 'Stoping proxy...')
+            current[self.role].stop()
         for menu_to_enable in self.menus_to_enable:
             menu_to_enable.setChecked(True)
             menu_to_enable.setDisabled(False)
@@ -99,19 +121,28 @@ class Extension:
                     f.write(content)
                     f.truncate()
         print('Starting...')
-        #self.process = subprocess.Popen([self.bin, *self.args])
-        self.thread = RunThread(self)
-        self.thread.start()
+        self.process = subprocess.Popen([self.bin, *self.args])
+        #self.thread = SubprocessThread(self)
+        #self.thread.start()
         #self.pid = self.process.pid
         if system: setproxy()
-
+        current[self.role] = self
+        profile.write('General', self.role, self.name)
+        self.menus_to_enable[0].setText(self.role.title() + ": " + self.port)
+        mutex.unlock()
 
     def setport(self):
         pass
 
     def stop(self):
-        self.thread = StopThread(self)
-        self.thread.start()
+        #global current
+        if self.exitargs:
+            subprocess.run([self.bin, *self.exitargs], check=True)
+        if self.process.returncode is None:
+            self.process.terminate()
+            self.process.wait()
+        #self.QAction.setChecked(False)
+        #current[self.type] = None
         if system: setproxy()
 
     def disable(self, *menus_to_disable):
@@ -124,18 +155,10 @@ class Extension:
 class Proxy(Extension):
     def __init__(self, *args):
         super().__init__(*args)
+        self.role = 'proxy'
         if self.name == selected['proxy']:
             self.select()
         #self.QAction.triggered.connect(self.select)
-
-    def select(self):
-        if current['proxy']:
-            print('Stoping proxy...')
-            current['proxy'].stop()
-        current['proxy'] = self
-        profile.write('General', 'proxy', self.name)
-        super().select()
-        self.menus_to_enable[0].setText("ᴘʀᴏxʏ: " + self.port)
 
     def stop(self):
         super().stop()
@@ -161,18 +184,10 @@ class Proxy(Extension):
 class Bypass(Extension):
     def __init__(self, *args):
         super().__init__(*args)
+        self.role = 'bypass'
         if self.name == selected['bypass']:
             self.select()
         #self.QAction.triggered.connect(self.select)
-
-    def select(self):
-        if current['bypass']:
-            print('Stoping bypass...')
-            current['bypass'].stop()
-        current['bypass'] = self
-        profile.write('General', 'bypass', self.name)
-        super().select()
-        self.menus_to_enable[0].setText("ʙʏᴘᴀss: " + self.port)
 
     def setport(self):
         if current["proxy"]:
@@ -202,20 +217,14 @@ class Bypass(Extension):
 class Capture(Extension):
     def __init__(self, *args):
         super().__init__(*args)
+        self.role = 'capture'
         if self.name == selected['capture']:
             self.select()
         #self.QAction.triggered.connect(self.select)
 
     def select(self):
-        if current['capture']:
-            print('Stoping capture...')
-            current['capture'].stop()
-        current['capture'] = self
         super().select()
-        self.menus_to_enable[0].setText("ᴄᴀᴘᴛᴜʀᴇ: " + self.port)
-        profile.write('General', 'capture', self.name)
-        window = Dashboard()
-        self.menus_to_enable[1].triggered.connect(lambda :window.show_dashboard(self.extension.title(), self.url))
+        self.menus_to_enable[1].triggered.connect(lambda: window.show_dashboard(self.extension.title(), self.url))
 
     def setport(self):
         if current["bypass"]:
@@ -240,43 +249,6 @@ class Capture(Extension):
     def disable(self, *args):
         super().disable(*args)
         profile.write('General', 'capture', '')
-
-
-class Dashboard(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super(Dashboard, self).__init__(*args, **kwargs)
-        self.resize(1280, 720)
-        self.browser = QWebEngineView()
-        self.setCentralWidget(self.browser)
-
-    def show_dashboard(self, extesnion_name, url):
-        self.setWindowTitle('[V2Net Dashboard] '+ extesnion_name +' Web Debugger')
-        self.browser.setUrl(QUrl(url))
-        self.show()
-
-
-class RunThread(QThread):
-    def __init__(self, obj):
-        super().__init__()
-        self.obj = obj
-
-    def run(self):
-        self.obj.process = subprocess.Popen([self.obj.bin, *self.obj.args])
-
-
-class StopThread(QThread):
-    def __init__(self, obj):
-        super().__init__()
-        self.obj = obj
-
-    def run(self):
-        try:
-            if self.obj.exitargs:
-                subprocess.run([self.obj.bin, *self.obj.exitargs], check=True)
-        finally:
-            if self.obj.process.returncode is None:
-                self.obj.process.terminate()
-                self.obj.process.wait()
 
 
 def quitapp():

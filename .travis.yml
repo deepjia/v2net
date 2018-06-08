@@ -1,0 +1,18 @@
+language: python
+python:
+- 3.6
+sudo: required
+install: pip install -r requirements.txt
+script:
+- python setup.py py2app
+before_deploy:
+- cd dist && zip -r v2net.zip v2net.app
+deploy:
+  provider: releases
+  api_key:
+    secure: ${GH_TOKEN}
+  file: "./dist/v2net.zip"
+  skip_cleanup: true
+  on:
+    repo: deepjia/v2net
+    tags: true

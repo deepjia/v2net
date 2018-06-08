@@ -77,19 +77,17 @@ class Extension(QThread):
         self.QAction.triggered.connect(self.select)
 
     def select(self):
+        self.QAction.setChecked(True)
+        for menu_to_enable in self.menus_to_enable:
+            menu_to_enable.setChecked(True)
+            menu_to_enable.setDisabled(False)
         self.start()
 
     def run(self):
         mutex.lock()
         if current[self.role]:
-            print(self.role + 'Stoping proxy...')
+            print('Stoping' + self.role + 'so as to start a new one')
             current[self.role].stop()
-        for menu_to_enable in self.menus_to_enable:
-            menu_to_enable.setChecked(True)
-            menu_to_enable.setDisabled(False)
-        self.QAction.setChecked(True)
-        #t = threading.Thread(target=self.run, name='Start Extension')
-        #t.start()
         self.folder = os.path.join(extension_path, self.extension)
         with open(os.path.join(self.folder, 'extension.json'), 'r') as f:
             json_str = f.read()
@@ -102,9 +100,9 @@ class Extension(QThread):
         # new json string
         self.jinja_dict = dict(self.default, **dict(filter(lambda x: x[1], zip(self.keys, self.values))))
         self.port = self.setport()
+        self.menus_to_enable[0].setText(self.role.title() + ": " + self.port)
         self.jinja_dict['ExtensionPort'] = self.port
         self.json = json.loads(Template(json_str).render(**self.jinja_dict))
-        print(self.json)
         self.bin = self.json['bin']
         self.render = self.json['render']
         self.url = self.json.get('url')
@@ -120,15 +118,11 @@ class Extension(QThread):
                     f.seek(0)
                     f.write(content)
                     f.truncate()
-        print('Starting...')
+        print('Starting: Runargs:',self.args,"Port",self.port,"Exitargs",self.exitargs)
         self.process = subprocess.Popen([self.bin, *self.args])
-        #self.thread = SubprocessThread(self)
-        #self.thread.start()
-        #self.pid = self.process.pid
         if system: setproxy()
         current[self.role] = self
         profile.write('General', self.role, self.name)
-        self.menus_to_enable[0].setText(self.role.title() + ": " + self.port)
         mutex.unlock()
 
     def setport(self):

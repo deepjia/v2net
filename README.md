@@ -18,9 +18,9 @@ Some popular network tools are intergrated, with the ability of adding new exten
 This is an alpha version.
 
 ## Snapshot
-![2018-06-08 5 45 11](https://user-images.githubusercontent.com/1452602/41151597-ce2d8d7e-6b43-11e8-8010-7511cfefc035.png)
+![2018-06-09 11 11 17](https://user-images.githubusercontent.com/1452602/41194013-bad6c36c-6c47-11e8-85fe-83c47788e793.png)
 
-![2018-06-08 5 51 25](https://user-images.githubusercontent.com/1452602/41151903-b3564922-6b44-11e8-9bf1-c8271bfeda94.png)
+![2018-06-10 12 45 22](https://user-images.githubusercontent.com/1452602/41194011-ba955c06-6c47-11e8-9419-3795d344de15.png)
 
 ## Prerequisites
 If you want to use the whistle extension, you will need node.

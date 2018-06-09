@@ -4,7 +4,7 @@
 ## Introduction
 V2Net is a network tool for macOS.
 
-Some popular network tools are intergrated, with the ability of adding new extensions without coding:
+Some popular network tools are integrated, with the ability of adding new extensions without coding:
 
 * Proxy:
 [ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
@@ -23,9 +23,9 @@ This is an alpha version.
 ![2018-06-10 12 45 22](https://user-images.githubusercontent.com/1452602/41194011-ba955c06-6c47-11e8-9419-3795d344de15.png)
 
 ## Prerequisites
-If you want to use the whistle extension, you will need node.
+To use the integrated whistle extension, Node.js is needed.
 
-Install node with homebrew:
+Install Node.js with [homebrew](https://brew.sh/):
 
 ```bash
 brew install node

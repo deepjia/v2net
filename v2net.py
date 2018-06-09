@@ -26,8 +26,6 @@ mutex = QMutex()
 class Extension(QThread):
     # 定义信号
     update_port = pyqtSignal()
-    stop_last = pyqtSignal()
-    restart_upper = pyqtSignal(str)
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -46,6 +44,7 @@ class Extension(QThread):
         self.QAction = QAction(self.name)
         self.QAction.setCheckable(True)
         self.QAction.triggered.connect(self.select)
+        self.last = None
 
     def select(self):
         # 设置菜单选中状态
@@ -63,18 +62,7 @@ class Extension(QThread):
                 http_port = self.local_port if self.http else ''
                 socks_port = self.local_port if self.socks else ''
 
-        def stop_last():
-            if self.last:
-                self.last.stop()
-            self.last = None
-
-        def restart_upper(role):
-            current[role].stop()
-            current[role].run()
-
         self.update_port.connect(update_port)
-        self.stop_last.connect(stop_last)
-        self.stop_upper.connect(restart_upper)
         # 在新线程中启动组件
         self.last = current[self.role]
         current[self.role] = self
@@ -85,7 +73,8 @@ class Extension(QThread):
         print('[', self.ext_name, ']', self.name, "get Lock.")
         # 关闭已启动的同类组件
         if self.last:
-            self.stop_last.emit()
+            self.last.stop()
+            self.last = None
         # 读取配置文件，获得 json 字符串
         ext_dir = os.path.join(ext_path, self.ext_name)
         with open(os.path.join(ext_dir, 'extension.json'), 'r') as f:
@@ -118,7 +107,8 @@ class Extension(QThread):
                 continue
             if begin and current[role]:
                 print("Will stop pid=", current[role].process.pid)
-                self.restart_upper.emit(role)
+                current[role].stop()
+                current[role].start()
                 if not server_port:
                     server_port = profile.get('General', 'InnerPort' + role.title())
                     self.jinja_dict['ServerPort'] = server_port
@@ -152,15 +142,13 @@ class Extension(QThread):
 
     def stop(self):
         print(self.name, "is going to stop. pid=", self.process.pid)
-        try:
-            if self.exitargs:
-                subprocess.run([self.bin, *self.exitargs], check=True)
-        finally:
-            if self.process.returncode is None:
-                self.process.terminate()
-                self.process.wait()
-            if system:
-                setproxy()
+        if self.exitargs:
+            subprocess.run([self.bin, *self.exitargs], check=True)
+        if self.process.returncode is None:
+            self.process.terminate()
+            self.process.wait()
+        if system:
+            setproxy()
 
     def disable(self, *menus_to_disable):
         for menu_to_disable in menus_to_disable:

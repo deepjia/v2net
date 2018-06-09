@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, Qt
 
 
 class Dashboard(QMainWindow):
@@ -15,6 +15,7 @@ class Dashboard(QMainWindow):
         self.setWindowTitle('[V2Net Dashboard] ' + extesnion_name + ' Web Debugger')
         self.browser.setUrl(QUrl(url))
         self.show()
+        self.activateWindow()
 
 
 APP = QApplication([])

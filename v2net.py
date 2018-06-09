@@ -27,9 +27,7 @@ class Extension(QThread):
     # 定义信号
     update_port = pyqtSignal()
     stop_last = pyqtSignal()
-    restart_proxy = pyqtSignal()
-    restart_bypass = pyqtSignal()
-    restart_capture = pyqtSignal()
+    stop_upper = pyqtSignal(str)
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -70,14 +68,13 @@ class Extension(QThread):
                 self.last.stop()
             self.last = None
 
-        def restart_role(role):
+        def stop_upper(role):
             current[role].stop()
+            current[role].run()
 
         self.update_port.connect(update_port)
         self.stop_last.connect(stop_last)
-        self.restart_proxy.connect(lambda: restart_role('proxy'))
-        self.restart_bypass.connect(lambda: restart_role('bypass'))
-        self.restart_capture.connect(lambda: restart_role('capture'))
+        self.stop_upper.connect(stop_upper)
         # 在新线程中启动组件
         self.last = current[self.role]
         current[self.role] = self
@@ -121,7 +118,8 @@ class Extension(QThread):
                 continue
             if begin and current[role]:
                 print("Will stop pid=", current[role].process.pid)
-                getattr(self, 'restart_' + role).emit()
+                self.stop_upper.emit(role)
+                #getattr(self, 'restart_' + role).emit()
                 #print(current[role], current[role].process.pid)
                 #current[role].run()
                 if not server_port:
@@ -170,6 +168,7 @@ class Extension(QThread):
     def disable(self, *menus_to_disable):
         for menu_to_disable in menus_to_disable:
             menu_to_disable.setDisabled(True)
+        menus_to_disable[0].setText(self.role.title() + ": Disabled")
         self.QAction.setChecked(False)
         self.stop()
         current[self.role] = None
@@ -184,7 +183,6 @@ class Proxy(Extension):
 
     def stop(self):
         super().stop()
-        self.menus_to_enable[0].setText("Proxy: Disabled")
 
     def disable(self, *args):
         super().disable(*args)
@@ -198,15 +196,8 @@ class Bypass(Extension):
         if self.name == selected['bypass']:
             self.select()
 
-    def select(self):
-        super().select()
-        if current['proxy']:
-            current['proxy'].start()
-            self.start()
-
     def stop(self):
         super().stop()
-        self.menus_to_enable[0].setText("Bypass: Disabled")
         if current['proxy']:
             current['proxy'].select()
 
@@ -224,18 +215,11 @@ class Capture(Extension):
 
     def select(self):
         super().select()
-        if current['bypass']:
-            current['bypass'].start()
-            self.start()
-        elif current['proxy']:
-            current['proxy'].start()
-            self.start()
         self.menus_to_enable[1].triggered.connect(
             lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
     def stop(self):
         super().stop()
-        self.menus_to_enable[0].setText("Capture: Disabled")
         if current['bypass']:
             current['bypass'].select()
 
@@ -244,12 +228,12 @@ class Capture(Extension):
         profile.write('General', 'capture', '')
 
 
-def quitapp():
+def quitapp(code=0):
     print("Quiting App...")
     for ins in filter(None, current.values()):
         ins.stop()
     print("Bye")
-    APP.exit()
+    APP.exit(code)
 
 
 def setproxy_menu(qaction):
@@ -299,6 +283,7 @@ def copy_shell():
 
 
 def main():
+    exitcode = 0
     try:
         menu = QMenu()
         # Proxy
@@ -378,9 +363,9 @@ def main():
         tray.setVisible(True)
         tray.setContextMenu(menu)
         # sys.exit(app.exec_())
-        APP.exec_()
+        exitcode = APP.exec_()
     finally:
-        quitapp()
+        quitapp(exitcode)
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ class Extension(QThread):
     # 定义信号
     update_port = pyqtSignal()
     stop_last = pyqtSignal()
-    stop_upper = pyqtSignal(str)
+    restart_upper = pyqtSignal(str)
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -68,13 +68,13 @@ class Extension(QThread):
                 self.last.stop()
             self.last = None
 
-        def stop_upper(role):
+        def restart_upper(role):
             current[role].stop()
             current[role].run()
 
         self.update_port.connect(update_port)
         self.stop_last.connect(stop_last)
-        self.stop_upper.connect(stop_upper)
+        self.stop_upper.connect(restart_upper)
         # 在新线程中启动组件
         self.last = current[self.role]
         current[self.role] = self
@@ -118,10 +118,7 @@ class Extension(QThread):
                 continue
             if begin and current[role]:
                 print("Will stop pid=", current[role].process.pid)
-                self.stop_upper.emit(role)
-                #getattr(self, 'restart_' + role).emit()
-                #print(current[role], current[role].process.pid)
-                #current[role].run()
+                self.restart_upper.emit(role)
                 if not server_port:
                     server_port = profile.get('General', 'InnerPort' + role.title())
                     self.jinja_dict['ServerPort'] = server_port

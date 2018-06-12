@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 import sys
 import os
+import shutil
 import subprocess
 import json
 import pyperclip
+import logging
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW
+version = '0.2.1'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')
@@ -17,10 +20,22 @@ profile = Config(os.path.join(profile_path, 'profile.ini'))
 skip_proxy = [x.strip() for x in profile.get('General', 'skip-proxy').split(',')]
 http_port = ''
 socks_port = ''
+user_port = profile.get('General', 'Port', '8014')
+user_inner_port_proxy = profile.get('General', 'InnerPortProxy', '8114')
+user_inner_port_bypass = profile.get('General', 'InnerPortBypass', '8214')
 selected = {x: profile.get('General', x) for x in ('proxy', 'bypass', 'capture')}
 current = {x: None for x in ('proxy', 'bypass', 'capture')}
-system = True if profile.get('General', 'system').strip().lower() == 'true' else False
+system = True if profile.get('General', 'system', 'false').strip().lower() == 'true' else False
 mutex = QMutex()
+log_path = os.path.join(base_path, 'log')
+shutil.rmtree(log_path, True)
+os.mkdir(log_path)
+logging.basicConfig(
+    level=getattr(logging, profile.get('General', 'loglevel', 'INFO').upper()),
+    handlers=(logging.FileHandler(
+        os.path.join(log_path, 'V2Net.log'), encoding='UTF-8'),),
+    format='%(asctime)s %(levelname)s: %(message)s'
+)
 
 
 class Extension(QThread):
@@ -33,7 +48,7 @@ class Extension(QThread):
         self.jinja_dict = None
         self.http = None
         self.socks = None
-        self.local_port = None
+        self.local_port = ''
         self.bin = None
         self.url = None
         self.exitargs = None
@@ -45,6 +60,7 @@ class Extension(QThread):
         self.QAction.setCheckable(True)
         self.QAction.triggered.connect(self.select)
         self.last = None
+        self.ext_log = None
 
     def select(self):
         # 设置菜单选中状态
@@ -57,7 +73,7 @@ class Extension(QThread):
         def update_port():
             current[self.role] = self
             self.menus_to_enable[0].setText(self.role.title() + ": " + self.local_port)
-            if self.local_port == profile.get('General', 'Port'):
+            if self.local_port == user_port:
                 global http_port, socks_port
                 http_port = self.local_port if self.http else ''
                 socks_port = self.local_port if self.socks else ''
@@ -70,10 +86,10 @@ class Extension(QThread):
 
     def run(self):
         mutex.lock()
-        print('[', self.ext_name, ']', self.name, "get Lock.")
+        logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
         # 关闭已启动的同类组件
         if self.last:
-            self.last.stop()
+            self.last.stop_and_reset()
             self.last = None
         # 读取配置文件，获得 json 字符串
         ext_dir = os.path.join(ext_path, self.ext_name)
@@ -87,35 +103,38 @@ class Extension(QThread):
         self.socks = json_temp['socks']
         # 使用关键数据，渲染 json 字符串，然后重新提取 json 词典
         self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
-        # Local Port
-        self.local_port = profile.get('General', 'Port')
+        # 确定 Local Port
+        self.local_port = user_port
         begin = False
         for role in ('proxy', 'bypass', 'capture'):
             if role == self.role:
                 begin = True
                 continue
             if begin and current[role]:
-                self.local_port = profile.get('General', 'InnerPort' + self.role.title())
+                self.local_port = user_inner_port_proxy if self.role == 'proxy' else user_inner_port_bypass
                 break
 
-        # Server Port
-        server_port = None
+        # 确定 Server Port
+        server_port = ''
         begin = False
         for role in ('capture', 'bypass', 'proxy'):
             if role == self.role:
                 begin = True
                 continue
             if begin and current[role]:
-                print("Will stop pid=", current[role].process.pid)
-                current[role].stop()
+                logging.info(
+                    '[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(current[role].process.pid))
+                current[role].stop_and_reset()
                 current[role].start()
                 if not server_port:
-                    server_port = profile.get('General', 'InnerPort' + role.title())
+                    server_port = user_inner_port_proxy if role == 'proxy' else user_inner_port_bypass
                     self.jinja_dict['ServerPort'] = server_port
 
-        print("Local Prot", self.local_port)
-        print("Server Prot", server_port)
-
+        logging.info(
+            '[' + self.ext_name + ']' + self.name + " Local Prot" + self.local_port)
+        logging.info(
+            '[' + self.ext_name + ']' + self.name + " Server Prot" + server_port)
+        # jinja2 渲染参数
         self.jinja_dict['ExtensionPort'] = self.local_port
         json_dict = json.loads(Template(json_str).render(**self.jinja_dict))
         self.bin = json_dict['bin']
@@ -131,31 +150,44 @@ class Extension(QThread):
                     f.seek(0)
                     f.write(content)
                     f.truncate()
-        self.process = subprocess.Popen([self.bin, *args])
-        print('[', self.ext_name, ']', self.name, "started, pid=", self.process.pid)
+        # 启动子进程
+        self.ext_log = open(os.path.join(log_path, self.name + '.log'), 'a', encoding='UTF-8')
+        self.process = subprocess.Popen([self.bin, *args],
+                                        stdout=self.ext_log, stderr=subprocess.PIPE)
+        logging.info(
+            '[' + self.ext_name + ']' + self.name + " started, pid=" + str(self.process.pid))
         self.update_port.emit()
         if system:
             setproxy()
         profile.write('General', self.role, self.name)
-        print('[', self.ext_name, ']', self.name, "release Lock.")
+        logging.debug(
+            '[' + self.ext_name + ']' + self.name + " release Lock.")
         mutex.unlock()
 
     def stop(self):
-        print(self.name, "is going to stop. pid=", self.process.pid)
+        logging.info(
+            '[' + self.ext_name + ']' + self.name + " is going to stop. pid=" + str(self.process.pid))
+        # 调用停止命令
         if self.exitargs:
-            subprocess.run([self.bin, *self.exitargs], check=True)
+            subprocess.run([self.bin, *self.exitargs], check=True,
+                           stdout=self.ext_log, stderr=subprocess.PIPE)
+        # 结束启动进程
         if self.process.returncode is None:
             self.process.terminate()
             self.process.wait()
+        self.ext_log.close()
         if system:
             setproxy()
+
+    def stop_and_reset(self):
+        self.stop()
 
     def disable(self, *menus_to_disable):
         for menu_to_disable in menus_to_disable:
             menu_to_disable.setDisabled(True)
         menus_to_disable[0].setText(self.role.title() + ": Disabled")
         self.QAction.setChecked(False)
-        self.stop()
+        self.stop_and_reset()
         current[self.role] = None
 
 
@@ -163,11 +195,9 @@ class Proxy(Extension):
     def __init__(self, *args):
         super().__init__(*args)
         self.role = 'proxy'
+        # 自动启动上次启动的扩展
         if self.name == selected['proxy']:
             self.select()
-
-    def stop(self):
-        super().stop()
 
     def disable(self, *args):
         super().disable(*args)
@@ -178,10 +208,11 @@ class Bypass(Extension):
     def __init__(self, *args):
         super().__init__(*args)
         self.role = 'bypass'
+        # 自动启动上次启动的扩展
         if self.name == selected['bypass']:
             self.select()
 
-    def stop(self):
+    def stop_and_reset(self):
         super().stop()
         if current['proxy']:
             current['proxy'].select()
@@ -195,6 +226,7 @@ class Capture(Extension):
     def __init__(self, *args):
         super().__init__(*args)
         self.role = 'capture'
+        # 自动启动上次启动的扩展
         if self.name == selected['capture']:
             self.select()
 
@@ -203,7 +235,7 @@ class Capture(Extension):
         self.menus_to_enable[1].triggered.connect(
             lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
-    def stop(self):
+    def stop_and_reset(self):
         super().stop()
         if current['bypass']:
             current['bypass'].select()
@@ -214,10 +246,10 @@ class Capture(Extension):
 
 
 def quitapp(code=0):
-    print("Quiting App...")
+    logging.info("Quiting App...")
     for ins in filter(None, current.values()):
         ins.stop()
-    print("Bye")
+    logging.info("Bye")
     APP.exit(code)
 
 
@@ -234,7 +266,7 @@ def setproxy_menu(qaction):
 
 
 def setproxy():
-    print('Setting shell command...')
+    logging.info('Setting system proxy...')
     subprocess.run('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
     subprocess.run('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
     subprocess.run('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
@@ -323,6 +355,9 @@ def main():
         menu.addAction(m_dashboard)
 
         # Common
+        m_log = QAction("Log Folder")
+        m_log.setShortcut('Ctrl+L')
+        m_log.triggered.connect(lambda: subprocess.call(["open", log_path]))
         m_profile = QAction("Profile Folder")
         m_profile.setShortcut('Ctrl+F')
         m_profile.triggered.connect(lambda: subprocess.call(["open", profile_path]))
@@ -331,7 +366,7 @@ def main():
         m_extension.triggered.connect(lambda: subprocess.call(["open", ext_path]))
         m_copy_shell = QAction("Copy Shell Command")
         m_copy_shell.setShortcut('Ctrl+S')
-        m_set_system = QAction("As System Proxy: " + profile.get('General', 'Port'))
+        m_set_system = QAction("As System Proxy: " + user_port)
         m_set_system.setShortcut('Ctrl+A')
         m_set_system.triggered.connect(lambda: setproxy_menu(m_set_system))
         m_copy_shell.triggered.connect(copy_shell)
@@ -342,11 +377,12 @@ def main():
         menu.addSeparator()
         menu.addAction(m_set_system)
         menu.addSeparator()
+        menu.addAction(m_log)
         menu.addAction(m_profile)
         menu.addAction(m_extension)
         menu.addAction(m_copy_shell)
         menu.addSeparator()
-        m_quit = QAction("Quit V2Net")
+        m_quit = QAction('Quit V2Net (' + version + ')')
         m_quit.setShortcut('Ctrl+Q')
         m_quit.triggered.connect(APP.quit)
         menu.addAction(m_quit)

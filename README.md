@@ -35,7 +35,43 @@ brew install node
 
 Or download installer from <https://nodejs.org/en/>
 
-## Usage
+## Install
 Download latest release:
 
 <https://github.com/deepjia/v2net/releases>
+
+Unpack and drag `V2Net.app` to `Application` folder.
+
+## Usage
+Example of profile.ini
+```ini
+[General]
+skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
+# proxy/bypass/capture: extensions selected last time
+proxy = ✈️Beijing
+bypass = 🚄Auto
+capture =
+# system: whether V2Net is set as system proxy last time
+system = false
+Port = 8014
+InnerPortProxy = 8114
+InnerPortBypass = 8214
+
+[Proxy]
+# The order of values is defined in "keys" field of extension.json in extension folders
+# name = extension_name, *values
+✈️Beijing = ss, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
+🇨🇳Shenzhen = vmess, example.org, 443, /ws, uuid
+🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345, bypass.txt
+🇯🇵Tokyo = gost, socks5, server_ip, 12345
+🇺🇸Denver = gost, http, server_ip, 12345
+
+[Bypass]
+# Same as proxy
+🚄Auto = gost, socks5, 127.0.0.1, ,bypass.txt
+
+[Capture]
+# Same as proxy
+🛠️Whistle = whistle
+
+```

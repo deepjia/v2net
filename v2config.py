@@ -19,8 +19,8 @@ class Config:
     def get_items(self, section):
         return self.config[section].items()
 
-    def get(self, section, key):
-        return self.config[section][key]
+    def get(self, section, key, fallback = None):
+        return self.config[section].get(key, fallback)
 
     def write(self, section, key, value):
         self.config.set(section, key, value)

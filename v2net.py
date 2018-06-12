@@ -273,6 +273,7 @@ def main():
         menu = QMenu()
         # Proxy
         m_proxy = QAction("Proxy: Disabled")
+        m_proxy.setShortcut('Ctrl+P')
         m_proxy.setCheckable(True)
         m_proxy.setDisabled(True)
         m_proxy.triggered.connect(lambda: current['proxy'].disable(m_proxy))
@@ -288,6 +289,7 @@ def main():
         # Bypass
         menu.addSeparator()
         m_bypass = QAction("Bypass: Disabled")
+        m_bypass.setShortcut('Ctrl+B')
         m_bypass.setCheckable(True)
         m_bypass.setDisabled(True)
         m_bypass.triggered.connect(lambda: current['bypass'].disable(m_bypass))
@@ -303,9 +305,11 @@ def main():
         # Capture
         menu.addSeparator()
         m_capture = QAction("Capture: Disabled")
+        m_capture.setShortcut('Ctrl+C')
         m_capture.setCheckable(True)
         m_capture.setDisabled(True)
         m_dashboard = QAction("Open Dashboard...")
+        m_dashboard.setShortcut('Ctrl+D')
         m_dashboard.setDisabled(True)
         m_capture.triggered.connect(lambda: current['capture'].disable(m_capture, m_dashboard))
         menu.addAction(m_capture)
@@ -320,11 +324,15 @@ def main():
 
         # Common
         m_profile = QAction("Profile Folder")
+        m_profile.setShortcut('Ctrl+F')
         m_profile.triggered.connect(lambda: subprocess.call(["open", profile_path]))
         m_extension = QAction("Extension Folder")
+        m_extension.setShortcut('Ctrl+E')
         m_extension.triggered.connect(lambda: subprocess.call(["open", ext_path]))
         m_copy_shell = QAction("Copy Shell Command")
+        m_copy_shell.setShortcut('Ctrl+S')
         m_set_system = QAction("As System Proxy: " + profile.get('General', 'Port'))
+        m_set_system.setShortcut('Ctrl+A')
         m_set_system.triggered.connect(lambda: setproxy_menu(m_set_system))
         m_copy_shell.triggered.connect(copy_shell)
         m_set_system.setCheckable(True)
@@ -339,6 +347,7 @@ def main():
         menu.addAction(m_copy_shell)
         menu.addSeparator()
         m_quit = QAction("Quit V2Net")
+        m_quit.setShortcut('Ctrl+Q')
         m_quit.triggered.connect(APP.quit)
         menu.addAction(m_quit)
 

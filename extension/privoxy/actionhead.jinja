@@ -1,0 +1,4 @@
+{alias}
+direct   = +forward-override{forward .}
+proxy    = +forward-override{forward{% if ServerProtocol=='socks5' %}-socks5{% endif %} {{ServerAddress}}:{{ServerPort}} .}
+

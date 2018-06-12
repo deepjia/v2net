@@ -3,9 +3,9 @@
   "args": "./extension/whistle/module/whistle/bin/whistle.js start -p {{ ExtensionPort }} -D ./extension/whistle",
   "url": "http://127.0.0.1:{{ ExtensionPort }}/#Network",
   "exitargs": "./extension/whistle/module/whistle/bin/whistle.js stop",
-  "keys": [],
+  "keys": ["Protocol"],
   "http": true,
-  "socks": true,
+  "socks5": true,
   "render": {"template.jinja": ".whistle/rules/properties"},
   "default": {}
 }

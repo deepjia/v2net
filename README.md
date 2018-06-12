@@ -11,6 +11,7 @@ Some popular network tools are integrated, with the ability of adding new extens
 [v2ray](https://www.v2ray.com)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
 * Bypass:
+[privoxy](https://www.privoxy.org)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
 * Capture:
 [whistle](https://github.com/avwo/whistle)
@@ -49,7 +50,7 @@ Example of profile.ini
 skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
 # proxy/bypass/capture: extensions selected last time
 proxy = ✈️Beijing
-bypass = 🚄Auto
+bypass = 🚄Privoxy
 capture =
 # system: whether V2Net is set as system proxy last time
 system = false
@@ -62,13 +63,14 @@ InnerPortBypass = 8214
 # name = extension_name, *values
 ✈️Beijing = ss, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
 🇨🇳Shenzhen = vmess, example.org, 443, /ws, uuid
-🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345, bypass.txt
+🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
 🇯🇵Tokyo = gost, socks5, server_ip, 12345
 🇺🇸Denver = gost, http, server_ip, 12345
 
 [Bypass]
-# Same as proxy
-🚄Auto = gost, socks5, 127.0.0.1, ,bypass.txt
+# Same as proxy, privoxy preferred
+🚄Privoxy = privoxy, , 127.0.0.1, , privoxy.txt
+#🚄Gost = gost, , 127.0.0.1, , gost.txt
 
 [Capture]
 # Same as proxy

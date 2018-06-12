@@ -1,10 +1,10 @@
 {
   "bin": "./extension/gost/bin/gost",
-  "args": "-L=:{{ ExtensionPort }}{% if ServerPort %} -F={{ Protocol }}://{{ ServerAddress }}:{{ ServerPort }}{% if Bypass %}?bypass=./profile/{{ Bypass }}{% endif %}{% endif %} {{ Other }}",
+  "args": "-L=:{{ ExtensionPort }}{% if ServerPort %} -F={{ ServerProtocol }}://{{ ServerAddress }}:{{ ServerPort }}{% if Bypass %}?bypass=./profile/{{ Bypass }}{% endif %}{% endif %} {{ Other }}",
   "exitargs": "",
-  "keys": ["Protocol", "ServerAddress", "ServerPort", "Bypass", "Other"],
+  "keys": ["ServerProtocol", "ServerAddress", "ServerPort", "Bypass", "Other"],
   "http": true,
-  "socks": true,
+  "socks5": true,
   "render": {},
   "default": {
     "Protocol": "socks5",

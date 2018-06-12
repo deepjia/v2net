@@ -4,7 +4,7 @@
   "keys": ["ServerAddress", "ServerPort", "WSPath", "ServicePassword"],
   "exitargs":"",
   "http": false,
-  "socks": true,
+  "socks5": true,
   "render": {"template.jinja": "config.json"},
   "default": {
     "ServerAddress": "127.0.0.1",

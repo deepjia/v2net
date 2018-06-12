@@ -12,14 +12,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW
-version = '0.2.1'
+version = '0.2.2'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')
 profile = Config(os.path.join(profile_path, 'profile.ini'))
 skip_proxy = [x.strip() for x in profile.get('General', 'skip-proxy').split(',')]
 http_port = ''
-socks_port = ''
+socks5_port = ''
 user_port = profile.get('General', 'Port', '8014')
 user_inner_port_proxy = profile.get('General', 'InnerPortProxy', '8114')
 user_inner_port_bypass = profile.get('General', 'InnerPortBypass', '8214')
@@ -47,10 +47,11 @@ class Extension(QThread):
         self.role = None
         self.jinja_dict = None
         self.http = None
-        self.socks = None
+        self.socks5 = None
         self.local_port = ''
         self.bin = None
         self.url = None
+        self.pre = None
         self.exitargs = None
         self.process = None
         self.menus_to_enable = menus_to_enable
@@ -74,9 +75,9 @@ class Extension(QThread):
             current[self.role] = self
             self.menus_to_enable[0].setText(self.role.title() + ": " + self.local_port)
             if self.local_port == user_port:
-                global http_port, socks_port
+                global http_port, socks5_port
                 http_port = self.local_port if self.http else ''
-                socks_port = self.local_port if self.socks else ''
+                socks5_port = self.local_port if self.socks5 else ''
 
         self.update_port.connect(update_port)
         # 在新线程中启动组件
@@ -100,9 +101,10 @@ class Extension(QThread):
         default = json_temp['default']
         keys = json_temp['keys']
         self.http = json_temp['http']
-        self.socks = json_temp['socks']
+        self.socks5 = json_temp['socks5']
         # 使用关键数据，渲染 json 字符串，然后重新提取 json 词典
         self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
+        self.jinja_dict['ExtensionDir'] = ext_dir
         # 确定 Local Port
         self.local_port = user_port
         begin = False
@@ -114,7 +116,7 @@ class Extension(QThread):
                 self.local_port = user_inner_port_proxy if self.role == 'proxy' else user_inner_port_bypass
                 break
 
-        # 确定 Server Port
+        # 确定 Server Port 和 Protocol
         server_port = ''
         begin = False
         for role in ('capture', 'bypass', 'proxy'):
@@ -127,7 +129,15 @@ class Extension(QThread):
                 current[role].stop_and_reset()
                 current[role].start()
                 if not server_port:
-                    server_port = user_inner_port_proxy if role == 'proxy' else user_inner_port_bypass
+                    if role == 'proxy':
+                        # 上级代理默认为 socks5
+                        if not self.jinja_dict.get('ServerProtocol'):
+                            self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
+                        server_port = user_inner_port_proxy
+                    else:
+                        if not self.jinja_dict.get('ServerProtocol'):
+                            self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
+                        server_port = user_inner_port_bypass
                     self.jinja_dict['ServerPort'] = server_port
 
         logging.info(
@@ -140,8 +150,9 @@ class Extension(QThread):
         self.bin = json_dict['bin']
         render = json_dict['render']
         self.url = json_dict.get('url')
-        args = json_dict['args'].split()
-        self.exitargs = json_dict['exitargs'].split()
+        args = json_dict.get('args', '')
+        pre = json_dict.get('pre')
+        self.exitargs = json_dict.get('exitargs')
         for src, dist in render.items():
             with open(os.path.join(ext_dir, src), 'r') as f:
                 content = Template(f.read()).render(**self.jinja_dict)
@@ -152,7 +163,10 @@ class Extension(QThread):
                     f.truncate()
         # 启动子进程
         self.ext_log = open(os.path.join(log_path, self.name + '.log'), 'a', encoding='UTF-8')
-        self.process = subprocess.Popen([self.bin, *args],
+        if pre:
+            subprocess.run(pre, shell=True, check=True,
+                           stdout=self.ext_log, stderr=subprocess.PIPE)
+        self.process = subprocess.Popen(self.bin + ' ' + args, shell=True,
                                         stdout=self.ext_log, stderr=subprocess.PIPE)
         logging.info(
             '[' + self.ext_name + ']' + self.name + " started, pid=" + str(self.process.pid))
@@ -169,7 +183,7 @@ class Extension(QThread):
             '[' + self.ext_name + ']' + self.name + " is going to stop. pid=" + str(self.process.pid))
         # 调用停止命令
         if self.exitargs:
-            subprocess.run([self.bin, *self.exitargs], check=True,
+            subprocess.run(self.bin + ' ' + self.exitargs, shell=True, check=True,
                            stdout=self.ext_log, stderr=subprocess.PIPE)
         # 结束启动进程
         if self.process.returncode is None:
@@ -278,9 +292,9 @@ def setproxy():
         subprocess.run('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
         # subprocess.run('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
         # subprocess.run('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
-    if socks_port:
-        subprocess.run('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks_port, shell=True)
-        # subprocess.run('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks_port,shell=True)
+    if socks5_port:
+        subprocess.run('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
+        # subprocess.run('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
     subprocess.run(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
     # subprocess.run(['networksetup', '-setproxybypassdomains', 'Ethernet', *skip_proxy])
 
@@ -292,8 +306,8 @@ def copy_shell():
             'export https_proxy=http://127.0.0.1:' + http_port + ';export http_proxy=http://127.0.0.1:' + http_port)
     else:
         cmd.append('unset https_proxy;unset http_proxy')
-    if socks_port:
-        cmd.append('export all_proxy=http://127.0.0.1:' + socks_port)
+    if socks5_port:
+        cmd.append('export all_proxy=http://127.0.0.1:' + socks5_port)
     else:
         cmd.append('unset all_proxy')
     pyperclip.copy(';'.join(cmd))

@@ -1,0 +1,13 @@
+{
+  "bin": "./extension/privoxy/bin/privoxy",
+  "pre": "cat ./profile/{{Bypass}} >> ./extension/privoxy/head.action; sed '1s/alias/{alias}/' ./extension/privoxy/head.action > ./extension/privoxy/user.action",
+  "args": "--no-daemon ./extension/privoxy/config",
+  "exitargs": "",
+  "keys": ["Protocol", "ServerAddress", "ServerPort", "Bypass"],
+  "http": true,
+  "socks5": false,
+  "render": {"config.jinja": "config", "actionhead.jinja":"head.action"},
+  "default": {
+    "ServerAddress": "127.0.0.1"
+  }
+}

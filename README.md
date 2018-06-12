@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/deepjia/v2net.svg?branch=master)](https://travis-ci.org/deepjia/v2net)
 
 ## Introduction
-V2Net is a network tool for macOS.
+V2Net is a network assistant tool for macOS.
 
 Some popular network tools are integrated, with the ability of adding new extensions without coding:
 

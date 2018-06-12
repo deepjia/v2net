@@ -280,23 +280,25 @@ def setproxy_menu(qaction):
 
 
 def setproxy():
-    logging.info('Setting system proxy...')
+    logging.info('Unsetting system proxy...')
     subprocess.run('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
     subprocess.run('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
     subprocess.run('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
     # subprocess.run('networksetup -setwebproxystate "Ethernet" off',shell=True)
     # subprocess.run('networksetup -setsecurewebproxystate "Ethernet" off',shell=True)
     # subprocess.run('networksetup -setsocksfirewallproxystate "Ethernet" off',shell=True)
-    if http_port:
-        subprocess.run('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
-        subprocess.run('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
-        # subprocess.run('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
-        # subprocess.run('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
-    if socks5_port:
-        subprocess.run('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
-        # subprocess.run('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
-    subprocess.run(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
-    # subprocess.run(['networksetup', '-setproxybypassdomains', 'Ethernet', *skip_proxy])
+    if system:
+        logging.info('Setting system proxy...')
+        if http_port:
+            subprocess.run('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
+            subprocess.run('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
+            # subprocess.run('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
+            # subprocess.run('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
+        if socks5_port:
+            subprocess.run('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
+            # subprocess.run('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
+        subprocess.run(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
+        # subprocess.run(['networksetup', '-setproxybypassdomains', 'Ethernet', *skip_proxy])
 
 
 def copy_shell():

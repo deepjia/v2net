@@ -24,7 +24,7 @@ This is an alpha version.
 ![2018-06-10 12 45 22](https://user-images.githubusercontent.com/1452602/41194011-ba955c06-6c47-11e8-9419-3795d344de15.png)
 
 ## Prerequisites
-To use the integrated whistle extension, Node.js is needed.
+(If only you want to use the integrated whistle extension,) Node.js is needed.
 
 Install Node.js with [homebrew](https://brew.sh/):
 
@@ -36,7 +36,7 @@ brew install node
 
 Or download installer from <https://nodejs.org/en/>
 
-## Install
+## Installation
 Download latest release:
 
 <https://github.com/deepjia/v2net/releases>
@@ -44,7 +44,7 @@ Download latest release:
 Unpack and drag `V2Net.app` to `Application` folder.
 
 ## Usage
-Example of profile.ini
+Example of `profile.ini`
 ```ini
 [General]
 skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
@@ -77,3 +77,60 @@ InnerPortBypass = 8214
 🛠️Whistle = whistle
 
 ```
+## Customization
+
+1. Open `Extension Folder`
+
+2. Enter/Create specific `Extension Directroy`
+
+3. Modify/Create `extension.json`
+
+   *bin:* Main binary of extensions.
+
+   *args*: Arguments for binary to start with.
+
+   *url*: Dashboard url for capture extension.
+
+   *exitargs*: Arguments for binary to quit with.(If left blank, binary process  will be stopped when stopping the extension)
+
+   *keys*: Keys to render by [jinja2](http://jinja.pocoo.org), whose values are in `profile.ini`
+
+   *http*: Whether the extension serve as a http proxy.
+
+   *socks5*: Whether the extension serve as a socks5 proxy
+
+   *render*: Render the template files in `Extension Directroy`
+
+   *default*: Default vaules to render.
+
+   ```json
+   {
+     "bin": "./extension/myext/bin/mybinary",
+     "args": "-p {{ ExtensionPort }} -c ./extension/myext/myconfig.ini",
+     "url": "http://127.0.0.1:{{ ExtensionPort }}",
+     "exitargs": "",
+     "keys": ["ServerProtocol", "ServerAddress", "SeverPort", "ServerPassword"],
+     "http": false,
+     "socks5": true,
+     "render": {"mytemplate.jinja": "myconfig.ini"},
+     "default": {"ServerAddress":"example.com"}
+   }
+   ```
+
+   [jinja2](http://jinja.pocoo.org) is used as render engine, which render {{ *key* }} as *values* from the `profile.ini` as well as from *default* values, which also supports logic causes like *{{% if  %}}* *{{% endif %}}*.
+
+   Specially,:
+
+   - *{{ ExtensionPort }}* will always be rendered as the proper value depending on your settings in `profile.ini`
+   - If an extension is running as a secondary proxy, *{{ ServerPort }}* and *{{ ServerProtocol }}* will be automatically rendered as `http` or `socks5` when left blank.
+
+   ## Build
+
+   ```bash
+   brew install python
+   git clone https://github.com/deepjia/v2net.git
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   python setup.py py2app
+   ```

@@ -8,7 +8,7 @@ import pyperclip
 import logging
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW

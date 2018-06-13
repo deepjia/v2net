@@ -121,8 +121,8 @@ InnerPortBypass = 8214
 
    Specially,:
 
-   - *{{ ExtensionPort }}* will always be rendered as the proper value depending on your settings in `profile.ini`
-   - If an extension is running as a secondary proxy, *{{ ServerPort }}* and *{{ ServerProtocol }}* will be automatically rendered as `http` or `socks5` when left blank.
+      - {{ *ExtensionPort* }} will always be rendered as the proper value depending on your settings in `profile.ini`
+      - If an extension is running as a secondary proxy, {{ *ServerPort* }} and {{ *ServerProtocol* }} will be automatically rendered as `http` or `socks5` when left blank.
 
    ## Build
 

@@ -41,6 +41,7 @@ logging.basicConfig(
 class Extension(QThread):
     # 定义信号
     update_port = pyqtSignal()
+    toggle_dashboard = pyqtSignal()
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -66,9 +67,8 @@ class Extension(QThread):
     def select(self):
         # 设置菜单选中状态
         self.QAction.setChecked(True)
-        for menu_to_enable in self.menus_to_enable:
-            menu_to_enable.setChecked(True)
-            menu_to_enable.setDisabled(False)
+        self.menus_to_enable[0].setChecked(True)
+        self.menus_to_enable[0].setDisabled(False)
 
         # 绑定信号的动作
         def update_port():
@@ -79,7 +79,15 @@ class Extension(QThread):
                 http_port = self.local_port if self.http else ''
                 socks5_port = self.local_port if self.socks5 else ''
 
+        def toggle_dashboard():
+            for menu_to_enable in self.menus_to_enable[1:]:
+                if self.url:
+                    menu_to_enable.setDisabled(False)
+                else:
+                    menu_to_enable.setDisabled(True)
+
         self.update_port.connect(update_port)
+        self.toggle_dashboard.connect(toggle_dashboard)
         # 在新线程中启动组件
         self.last = current[self.role]
         current[self.role] = self
@@ -174,6 +182,8 @@ class Extension(QThread):
         if system:
             setproxy()
         profile.write('General', self.role, self.name)
+        # Enable/Disable other menu items like Dashboard
+        self.toggle_dashboard.emit()
         logging.debug(
             '[' + self.ext_name + ']' + self.name + " release Lock.")
         mutex.unlock()

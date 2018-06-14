@@ -19,14 +19,18 @@ Some popular network tools are integrated, with the ability of adding new extens
 This is an alpha version.
 
 ## Snapshot
+System tray menu:
+
 ![2018-06-12 9 37 24](https://user-images.githubusercontent.com/1452602/41293869-126d75f6-6e89-11e8-86a3-a1854d9c6abc.png)
+
+Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in browser:
 
 ![2018-06-10 12 45 22](https://user-images.githubusercontent.com/1452602/41194011-ba955c06-6c47-11e8-9419-3795d344de15.png)
 
 ## Prerequisites
 (If only you want to use the integrated whistle extension,) Node.js is needed.
 
-Install Node.js with [homebrew](https://brew.sh/):
+Install Node.js with [Homebrew](https://brew.sh/):
 
 ```bash
 brew install node
@@ -45,6 +49,7 @@ Unpack and drag `V2Net.app` to `Application` folder.
 
 ## Usage
 Example of `profile.ini`
+
 ```ini
 [General]
 skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
@@ -117,9 +122,9 @@ InnerPortBypass = 8214
    }
    ```
 
-   [jinja2](http://jinja.pocoo.org) is used as render engine, which render {{ *key* }} as *values* from the `profile.ini` as well as from *default* values, which also supports logic causes like *{{% if  %}}* *{{% endif %}}*.
+   [jinja2](http://jinja.pocoo.org) is used as render engine, which render {{ *key* }} as *values* from the `profile.ini` as well as from *default* values, which also supports logic causes like {{*% if  %*}} {{*% endif %*}}.
 
-   Specially,:
+   Specially:
 
       - {{ *ExtensionPort* }} will always be rendered as the proper value depending on your settings in `profile.ini`
       - If an extension is running as a secondary proxy, {{ *ServerPort* }} and {{ *ServerProtocol* }} will be automatically rendered as `http` or `socks5` when left blank.

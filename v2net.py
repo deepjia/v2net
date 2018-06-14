@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW
-version = '0.2.4'
+version = '0.2.5'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')
@@ -41,7 +41,7 @@ logging.basicConfig(
 class Extension(QThread):
     # 定义信号
     update_port = pyqtSignal()
-    toggle_dashboard = pyqtSignal()
+    toggle_menu = pyqtSignal()
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -65,11 +65,6 @@ class Extension(QThread):
         self.ext_log = None
 
     def select(self):
-        # 设置菜单选中状态
-        self.QAction.setChecked(True)
-        self.menus_to_enable[0].setChecked(True)
-        self.menus_to_enable[0].setDisabled(False)
-
         # 绑定信号的动作
         def update_port():
             current[self.role] = self
@@ -79,7 +74,11 @@ class Extension(QThread):
                 http_port = self.local_port if self.http else ''
                 socks5_port = self.local_port if self.socks5 else ''
 
-        def toggle_dashboard():
+        def toggle_menu():
+            # 设置菜单选中状态
+            self.QAction.setChecked(True)
+            self.menus_to_enable[0].setChecked(True)
+            self.menus_to_enable[0].setDisabled(False)
             for menu_to_enable in self.menus_to_enable[1:]:
                 if self.url:
                     menu_to_enable.setDisabled(False)
@@ -87,7 +86,7 @@ class Extension(QThread):
                     menu_to_enable.setDisabled(True)
 
         self.update_port.connect(update_port)
-        self.toggle_dashboard.connect(toggle_dashboard)
+        self.toggle_menu.connect(toggle_menu)
         # 在新线程中启动组件
         self.last = current[self.role]
         current[self.role] = self
@@ -183,7 +182,7 @@ class Extension(QThread):
             setproxy()
         profile.write('General', self.role, self.name)
         # Enable/Disable other menu items like Dashboard
-        self.toggle_dashboard.emit()
+        self.toggle_menu.emit()
         logging.debug(
             '[' + self.ext_name + ']' + self.name + " release Lock.")
         mutex.unlock()

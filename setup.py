@@ -9,6 +9,7 @@ from setuptools import setup
 
 APP = ['v2net.py']
 APP_NAME = 'V2Net'
+VERSION = '0.2.5'
 DATA_FILES = ['extension', 'profile', 'icon.png']
 OPTIONS = {
     'emulate_shell_environment': True,
@@ -17,8 +18,9 @@ OPTIONS = {
         'CFBundleName': APP_NAME,
         'CFBundleDisplayName': APP_NAME,
         'LSUIElement': True,
-        'CFBundleVersion': "0.2.4",
-        'CFBundleShortVersionString': "0.2.4"
+        'NSHighResolutionCapable': True,
+        'CFBundleVersion': VERSION,
+        'CFBundleShortVersionString': VERSION
     }
 }
 

@@ -82,6 +82,9 @@ InnerPortBypass = 8214
 🛠️Whistle = whistle
 
 ```
+
+Remember to backup config before manual upgrade.
+
 ## Customization
 
 1. Open `Extension Folder`

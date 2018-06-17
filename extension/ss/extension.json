@@ -10,6 +10,6 @@
     "ServerAddress": "127.0.0.1",
     "EncryptionMethod": "chacha20-ietf-poly1305",
     "Timeout": "60",
-    "TFO": "true"
+    "TFO": "false"
   }
 }

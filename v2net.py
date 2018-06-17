@@ -8,11 +8,11 @@ import pyperclip
 import logging
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon
+from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QLabel
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW
-version = '0.2.5'
+VERSION = '0.2.5'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')
@@ -172,9 +172,9 @@ class Extension(QThread):
         self.ext_log = open(os.path.join(log_path, self.name + '.log'), 'a', encoding='UTF-8')
         if pre:
             subprocess.run(pre, shell=True, check=True,
-                           stdout=self.ext_log, stderr=subprocess.PIPE)
+                           stdout=self.ext_log, stderr=subprocess.STDOUT)
         self.process = subprocess.Popen(self.bin + ' ' + args, shell=True,
-                                        stdout=self.ext_log, stderr=subprocess.PIPE)
+                                        stdout=self.ext_log, stderr=subprocess.STDOUT)
         logging.info(
             '[' + self.ext_name + ']' + self.name + " started, pid=" + str(self.process.pid))
         self.update_port.emit()
@@ -193,7 +193,7 @@ class Extension(QThread):
         # 调用停止命令
         if self.exitargs:
             subprocess.run(self.bin + ' ' + self.exitargs, shell=True, check=True,
-                           stdout=self.ext_log, stderr=subprocess.PIPE)
+                           stdout=self.ext_log, stderr=subprocess.STDOUT)
         # 结束启动进程
         if self.process.returncode is None:
             self.process.terminate()
@@ -407,7 +407,7 @@ def main():
         menu.addAction(m_extension)
         menu.addAction(m_copy_shell)
         menu.addSeparator()
-        m_quit = QAction('Quit V2Net (' + version + ')')
+        m_quit = QAction('Quit V2Net (' + VERSION + ')')
         m_quit.setShortcut('Ctrl+Q')
         m_quit.triggered.connect(APP.quit)
         menu.addAction(m_quit)

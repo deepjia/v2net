@@ -73,9 +73,9 @@ InnerPortBypass = 8214
 🇺🇸Denver = gost, http, server_ip, 12345
 
 [Bypass]
-# Same as proxy, privoxy preferred
+# Same as proxy
+🚄Gost = gost, , 127.0.0.1, , gost.txt
 🚄Privoxy = privoxy, , 127.0.0.1, , privoxy.txt
-#🚄Gost = gost, , 127.0.0.1, , gost.txt
 
 [Capture]
 # Same as proxy
@@ -132,13 +132,14 @@ Remember to backup config before manual upgrade.
       - {{ *ExtensionPort* }} will always be rendered as the proper value depending on your settings in `profile.ini`
       - If an extension is running as a secondary proxy, {{ *ServerPort* }} and {{ *ServerProtocol* }} will be automatically rendered as `http` or `socks5` when left blank.
 
-   ## Build
 
-   ```bash
-   brew install python
-   git clone https://github.com/deepjia/v2net.git
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   python setup.py py2app
-   ```
+## Build
+
+```bash
+brew install python
+git clone https://github.com/deepjia/v2net.git
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python setup.py py2app
+```

@@ -7,7 +7,6 @@
   "socks5": true,
   "render": {},
   "default": {
-    "Protocol": "socks5",
     "ServerAddress": "127.0.0.1"
   }
 }

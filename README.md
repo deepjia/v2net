@@ -7,12 +7,13 @@ V2Net is a network assistant tool for macOS.
 Some popular network tools are integrated, with the ability of adding new extensions without coding:
 
 * Proxy:
-[ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
+[glider](https://github.com/nadoo/glider)
+[gost](https://github.com/ginuerzh/gost/tree/2.6)
 [v2ray](https://www.v2ray.com)
-[gost](https://github.com/ginuerzh/gost/tree/2.6)
+[ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
 * Bypass:
-[privoxy](https://www.privoxy.org)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
+[privoxy](https://www.privoxy.org)
 * Capture:
 [whistle](https://github.com/avwo/whistle)
 
@@ -67,13 +68,15 @@ InnerPortBypass = 8214
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
 ✈️Beijing = ss, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
+🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345, glider.txt
+🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345, gost.txt
 🇨🇳Shenzhen = vmess, example.org, 443, /ws, uuid
-🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
 🇯🇵Tokyo = gost, socks5, server_ip, 12345
 🇺🇸Denver = gost, http, server_ip, 12345
 
 [Bypass]
 # Same as proxy
+🚄Glider = glider, , 127.0.0.1, , glider.txt
 🚄Gost = gost, , 127.0.0.1, , gost.txt
 🚄Privoxy = privoxy, , 127.0.0.1, , privoxy.txt
 

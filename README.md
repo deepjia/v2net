@@ -42,6 +42,14 @@ brew install node
 
 Or download installer from <https://nodejs.org/en/>
 
+To use ss-libev, you need to install with [Homebrew](https://brew.sh/):
+
+```bash
+brew install shadowsocks-libev
+```
+
+Or just use the glider extension instead.
+
 ## Installation
 Download latest release:
 
@@ -68,12 +76,12 @@ InnerPortBypass = 8214
 [Proxy]
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
-✈️Beijing = ss, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
 🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345
 🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
 🇨🇳Shenzhen = vmess, example.org, 443, /ws, uuid
 🇯🇵Tokyo = gost, socks5, server_ip, 12345
 🇺🇸Denver = gost, http, server_ip, 12345
+✈️Backup = ss, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
 
 [Bypass]
 # Same as proxy

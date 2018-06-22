@@ -1,5 +1,5 @@
 {
-  "bin": "./extension/ss/bin/ss-local",
+  "bin": "ss-local",
   "args": "-c ./extension/ss/config.json",
   "keys": ["ServerAddress", "ServerPort", "EncryptionMethod", "ServicePassword", "Timeout", "TFO"],
   "exitargs": "",

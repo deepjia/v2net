@@ -9,7 +9,7 @@ from setuptools import setup
 
 APP = ['v2net.py']
 APP_NAME = 'V2Net'
-VERSION = '0.2.6.1'
+VERSION = '0.2.6.2'
 DATA_FILES = ['extension', 'profile', 'icon.png']
 OPTIONS = {
     'emulate_shell_environment': True,

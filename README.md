@@ -56,7 +56,7 @@ Example of `profile.ini`
 skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
 # proxy/bypass/capture: extensions selected last time
 proxy = ✈️Beijing
-bypass = 🚄Privoxy
+bypass = 🚄GliderRule
 capture =
 # system: whether V2Net is set as system proxy last time
 system = false
@@ -68,17 +68,17 @@ InnerPortBypass = 8214
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
 ✈️Beijing = ss, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
-🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345, glider.txt
-🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345, gost.txt
+🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345
+🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
 🇨🇳Shenzhen = vmess, example.org, 443, /ws, uuid
 🇯🇵Tokyo = gost, socks5, server_ip, 12345
 🇺🇸Denver = gost, http, server_ip, 12345
 
 [Bypass]
 # Same as proxy
-🚄Glider = glider, , 127.0.0.1, , glider.txt
-🚄Gost = gost, , 127.0.0.1, , gost.txt
-🚄Privoxy = privoxy, , 127.0.0.1, , privoxy.txt
+🚄GostRule = gost, , 127.0.0.1, , gost.txt
+🚄GliderRule = glider, , 127.0.0.1, , glider.txt
+🚄PrivoxyRule = privoxy, , 127.0.0.1, , privoxy.txt
 
 [Capture]
 # Same as proxy

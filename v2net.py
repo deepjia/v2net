@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidg
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW
-VERSION = '0.2.6'
+VERSION = '0.2.6.1'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')

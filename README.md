@@ -1,11 +1,11 @@
 # V2Net
 [![Build Status](https://travis-ci.org/deepjia/v2net.svg?branch=master)](https://travis-ci.org/deepjia/v2net)
 
-**==IMPORTANT==**
+**⚠️ IMPORTANT ⚠️**
 
-**I changed names & prerequisites of some extensions in version 0.3.0 (alpha).**
+I changed names & prerequisites of some extensions in version 0.3.0 (alpha).
 
-**Please review your `profile.ini` and satisfy the prerequisites, before upgrading.**
+Please review your `profile.ini` and satisfy the prerequisites before upgrading.
 
 ## Introduction
 V2Net is a network assistant tool for macOS.

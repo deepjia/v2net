@@ -12,6 +12,7 @@ Some popular network tools are integrated, with the ability of adding new extens
 [v2ray](https://www.v2ray.com)
 [ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
 * Bypass:
+[glider](https://github.com/nadoo/glider)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
 [privoxy](https://www.privoxy.org)
 * Capture:

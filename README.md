@@ -1,6 +1,12 @@
 # V2Net
 [![Build Status](https://travis-ci.org/deepjia/v2net.svg?branch=master)](https://travis-ci.org/deepjia/v2net)
 
+**==IMPORTANT==**
+
+**I changed names & prerequisites of some extensions in version 0.3.0 (alpha).**
+
+**Please review your `profile.ini` and satisfy the prerequisites, before upgrading.**
+
 ## Introduction
 V2Net is a network assistant tool for macOS.
 
@@ -20,6 +26,8 @@ Some popular network tools are integrated, with the ability of adding new extens
 
 This is an alpha version.
 
+
+
 ## Snapshot
 System tray menu:
 
@@ -30,7 +38,10 @@ Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in brows
 ![2018-06-10 12 45 22](https://user-images.githubusercontent.com/1452602/41194011-ba955c06-6c47-11e8-9419-3795d344de15.png)
 
 ## Prerequisites
-(If only you want to use the integrated whistle extension,) Node.js is needed.
+Install prerequisites if only you need the related extension.
+### whistle
+
+Node.js is needed.
 
 Install Node.js with [Homebrew](https://brew.sh/):
 
@@ -42,13 +53,22 @@ brew install node
 
 Or download installer from <https://nodejs.org/en/>
 
-To use ss-libev, you need to install with [Homebrew](https://brew.sh/):
+### ss-libev
+Install with [Homebrew](https://brew.sh/):
 
 ```bash
 brew install shadowsocks-libev
 ```
 
 Or just use the glider extension instead.
+
+### v2ray
+Install with [Homebrew](https://brew.sh/):
+
+```bash
+brew install v2ray/v2ray/v2ray-core
+```
+
 
 ## Installation
 Download latest release:
@@ -78,10 +98,10 @@ InnerPortBypass = 8214
 # name = extension_name, *values
 🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345
 🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
-🇨🇳Shenzhen = vmess, example.org, 443, /ws, uuid
+🇨🇳Shenzhen = v2ray, example.org, 443, /ws, uuid
 🇯🇵Tokyo = gost, socks5, server_ip, 12345
 🇺🇸Denver = gost, http, server_ip, 12345
-✈️Backup = ss, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
+✈️Backup = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
 
 [Bypass]
 # Same as proxy

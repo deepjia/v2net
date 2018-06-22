@@ -1,0 +1,9 @@
+{
+    "server":"server_ip",
+    "server_port":12345,
+    "local_port":8114,
+    "password":"password",
+    "timeout":60,
+    "fast_open":true,
+    "method": "chacha20-ietf-poly1305"
+}

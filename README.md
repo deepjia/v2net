@@ -13,13 +13,13 @@ V2Net is a network assistant tool for macOS.
 Some popular network tools are integrated, with the ability of adding new extensions without coding:
 
 * Proxy:
-[glider](https://github.com/nadoo/glider)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
-[v2ray](https://www.v2ray.com)
+[glider](https://github.com/nadoo/glider)
 [ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
+[v2ray](https://www.v2ray.com)
 * Bypass:
-[glider](https://github.com/nadoo/glider)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
+[glider](https://github.com/nadoo/glider)
 [privoxy](https://www.privoxy.org)
 * Capture:
 [whistle](https://github.com/avwo/whistle)
@@ -170,6 +170,7 @@ Remember to backup config before manual upgrade.
 ```bash
 brew install python
 git clone https://github.com/deepjia/v2net.git
+cd v2net
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt

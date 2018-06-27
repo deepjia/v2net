@@ -3,7 +3,7 @@
     "server_port":{{ ServerPort }},
     "local_port":{{ ExtensionPort }},
     "password":"{{ ServicePassword }}",
-    "timeout":{{ Timeout }},
-    "fast_open":{{ TFO }},
+    "timeout":{{ Timeout }},{% if TFO in ('true','tfo=true') %}
+    "fast_open":true,{% endif %}
     "method": "{{ EncryptionMethod }}"
 }

@@ -2,58 +2,15 @@
 /*eslint no-console: "off"*/
 var program = require('starting');
 var path = require('path');
-var os = require('os');
 var config = require('../lib/config');
-var colors = require('colors/safe');
+var useRules = require('./use');
+var showStatus = require('./status');
+var util = require('./util');
 
-function getIpList() {
-  var ipList = [];
-  var ifaces = os.networkInterfaces();
-  Object.keys(ifaces).forEach(function(ifname) {
-    ifaces[ifname].forEach(function (iface) {
-      if (iface.family == 'IPv4') {
-        ipList.push(iface.address);
-      }
-    });
-  });
-
-  return ipList;
-}
-
-function error(msg) {
-  console.log(colors.red(msg));
-}
-
-function warn(msg) {
-  console.log(colors.yellow(msg));
-}
-
-function info(msg) {
-  console.log(colors.green(msg));
-}
-
-function showUsage(isRunning, options, restart) {
-  var port = options.port || config.port;
-  if (isRunning) {
-    warn('[!] ' + config.name + '@' + config.version + ' is running');
-  } else {
-    info('[i] ' + config.name + '@' + config.version + (restart ? ' restarted' : ' started'));
-  }
-
-  info('[i] First, use your device to visit the following URL list, gets the ' + colors.bold('IP') + ' of the URL you can visit:');
-  info(getIpList().map(function(ip) {
-    return '    http://' + colors.bold(ip) + (port ? ':' + port : '') + '/';
-  }).join('\n'));
-
-  warn('    Note: If the following URLs are unable to access, check the server\'s firewall settings');
-  warn('          For more information, please visit ' + colors.bold('https://github.com/avwo/whistle'));
-  info('[i] Second, configure your device to use ' + config.name + ' as its HTTP and HTTPS proxy on ' + colors.bold('IP:') + port);
-  info('[i] Last, use ' + colors.bold('Chrome') + ' to visit ' + colors.bold('http://' + (options.localUIHost || config.localUIHost) + '/') + ' to get started');
-
-  if (parseInt(process.version.slice(1), 10) < 6) {
-    warn(colors.bold('\nWarning: The current Node version is too low, access https://nodejs.org to install the latest version, or may not be able to intercept HTTPS CONNECTs\n'));
-  }
-}
+var showUsage = util.showUsage;
+var error = util.error;
+var warn = util.warn;
+var info = util.info;
 
 function showStartupInfo(err, options, debugMode, restart) {
   if (!err || err === true) {
@@ -107,6 +64,13 @@ program.setConfig({
 });
 
 program
+  .command('status')
+  .description('Show the running status of whistle');
+program
+  .command('use/enable [filepath]')
+  .description('Set rules from a specified js file (.whistle.js by default)');
+  
+program
   .option('-D, --baseDir [baseDir]', 'set the configured storage root path', String, undefined)
   .option('-z, --certDir [directory]', 'set custom certificate store directory', String, undefined)
   .option('-l, --localUIHost [hostname]', 'set the domain for the web ui of whistle (' + config.localUIHost + ' by default)', String, undefined)
@@ -128,6 +92,35 @@ program
   .option('-t, --timeout [ms]', 'set the request timeout (' + config.timeout + 'ms by default)', parseInt, undefined)
   .option('-e, --extra [extraData]', 'set the extra parameters for plugin', String, undefined)
   .option('-f, --secureFilter [secureFilter]', 'set the path of secure filter', String, undefined)
-  .option('-R, --reqCacheSize [reqCacheSize]', 'set the cache size of request data (512 by default)', String, undefined)
-  .option('-F, --frameCacheSize [frameCacheSize]', 'set the cache size of webSocket and socket\'s frames (512 by default)', String, undefined)
-  .parse(process.argv);
+  .option('-R, --reqCacheSize [reqCacheSize]', 'set the cache size of request data (600 by default)', String, undefined)
+  .option('-F, --frameCacheSize [frameCacheSize]', 'set the cache size of webSocket and socket\'s frames (512 by default)', String, undefined);
+
+var argv = process.argv;
+var cmd = argv[2];
+var storage;
+if (cmd === 'status') {
+  var all = argv[3] === '--all';
+  if (argv[3] === '-S') {
+    storage = argv[4];
+  }
+  showStatus(all, storage);
+} else if (cmd === 'use' || cmd === 'enable') {
+  var index = argv.indexOf('--force');
+  var force = index !== -1;
+  if (force) {
+    argv.splice(index, 1);
+  }
+  var filepath = argv[3];
+  if (filepath === '-S') {
+    filepath = null;
+    storage = argv[4];
+  } else if (argv[4] === '-S') {
+    storage = argv[5];
+  }
+  if (filepath && /^-/.test(filepath)) {
+    filepath = null;
+  }
+  useRules(filepath, storage, force);
+} else {
+  program.parse(argv);
+}

@@ -1,27 +1,27 @@
 {
-  "_from": "whistle",
-  "_id": "whistle@1.10.4",
+  "_from": "whistle@1.10.10",
+  "_id": "whistle@1.10.10",
   "_inBundle": false,
-  "_integrity": "sha512-V/lzDMFvXg2bEEmcU+t8lyi+UQpsK6VeE5f/XObFqdXNYGWIsHqoPAd0CRmFGONJPWoMAzoBRHFZfu8Je89Rig==",
+  "_integrity": "sha1-4KaKS9QdOCJLAkH6q83CBoTR7RU=",
   "_location": "/whistle",
   "_phantomChildren": {},
   "_requested": {
-    "type": "tag",
+    "type": "version",
     "registry": true,
-    "raw": "whistle",
+    "raw": "whistle@1.10.10",
     "name": "whistle",
     "escapedName": "whistle",
-    "rawSpec": "",
+    "rawSpec": "1.10.10",
     "saveSpec": null,
-    "fetchSpec": "latest"
+    "fetchSpec": "1.10.10"
   },
   "_requiredBy": [
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/whistle/-/whistle-1.10.4.tgz",
-  "_shasum": "8a854edc4b02c93bf8b881ba33c29486c1865fa8",
-  "_spec": "whistle",
+  "_resolved": "https://registry.npmjs.org/whistle/-/whistle-1.10.10.tgz",
+  "_shasum": "e0a68a4bd41d38224b0241faabcdc20684d1ed15",
+  "_spec": "whistle@1.10.10",
   "_where": "/tmp",
   "author": {
     "name": "avenwu",
@@ -47,7 +47,7 @@
     "express": "4.12.3",
     "extend": "^3.0.1",
     "fs-extra2": "^1.0.0",
-    "hagent": "^0.1.0",
+    "hagent": "^0.2.1",
     "hparser": "^0.1.2",
     "iconv-lite": "0.4.7",
     "lru-cache": "^4.1.1",
@@ -61,6 +61,7 @@
     "pipestream": "^0.1.0",
     "q": "1.4.1",
     "safe-buffer": "^5.1.2",
+    "sni": "1.0.0",
     "socksv5": "0.0.6",
     "starting": "^4.0.1",
     "weinre2": "^1.1.0",
@@ -75,6 +76,7 @@
     "babel-loader": "^6.2.4",
     "babel-preset-react": "^6.5.0",
     "babel-runtime": "^6.26.0",
+    "base64-js": "^1.3.0",
     "bootstrap": "3.3.5",
     "clipboard": "^1.7.1",
     "codemirror": "5.5.0",
@@ -86,6 +88,7 @@
     "glob": "^7.1.2",
     "istanbul": "^0.4.4",
     "jquery": "^3.3.1",
+    "js-base64": "^2.4.5",
     "lodash.startcase": "^4.4.0",
     "prop-types": "^15.5.8",
     "qrcode": "^1.2.0",
@@ -111,7 +114,9 @@
   "keywords": [
     "proxy",
     "fiddler",
-    "charles"
+    "charles",
+    "websocket",
+    "hosts"
   ],
   "license": "MIT",
   "localUIHost": "local.whistlejs.com",
@@ -138,6 +143,6 @@
   },
   "sockets": 60,
   "timeout": 66000,
-  "version": "1.10.4",
+  "version": "1.10.10",
   "whistleSsl": "whistle-ssl"
 }

@@ -46,7 +46,10 @@ module.exports = function(req, res, next) {
     }
   } else {
     isWebUI = req.headers[config.WEBUI_HEAD] || config.isLocalUIUrl(host);
-    if (isWebUI || (net.isIP(host) && util.isLocalAddress(host))) {
+    if (!isWebUI && net.isIP(host) && util.isLocalAddress(host)) {
+      isWebUI = port == config.port || port == config.uiport;
+    }
+    if (isWebUI) {
       if (req.path.indexOf('/_/') === 0) {
         bypass = '/_/';
       } else if (req.path.indexOf('/-/') === 0) {
@@ -54,13 +57,6 @@ module.exports = function(req, res, next) {
       }
       if (bypass) {
         req.url = req.url.replace(bypass, '/');
-      } else if (!isWebUI) {
-        if (port == config.port || port == config.uiport) {
-          host = config.localUIHost;
-          isWebUI = true;
-        } else if (port == config.weinreport) {
-          host = config.WEINRE_HOST;
-        }
       }
     }
   }

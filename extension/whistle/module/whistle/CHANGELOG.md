@@ -1,3 +1,32 @@
+### v1.10.10
+1. feat: 支持显示图片
+2. feat: 通过 `w2 status [-S storage]` 或 `w2 --all` 显示当前whistle运行状态
+3. refactor: WebSocket请求贞数据二进制显示格式
+
+### v1.10.9
+1. feat: 添加更新插件的按钮，点击该按钮弹出更新命令
+2. feat: 支持通过命令行 `w2 use` 或 `w2 enable` 获取当前目录 `.whistle.js` 输出的规则配置，具体参见：[命令行参数](http://wproxy.org/whistle/cli.html)
+
+### v1.10.8
+1. refactor: 放宽对json格式的要求
+2. refactor: resMerge支持返回类型为html的请求
+3. fix: 127.0.0.1请求无法发出去的问题
+
+### v1.10.7
+1. chore: 修复README没发布出去的问题
+2. fix: 编辑器搜索问题
+3. feat: 支持设置多个访问webui的域名 `-l "webui1.example.com|webui2.example.com"`
+
+### v1.10.6
+1. fix: 用proxifier代理http post请求可能会卡住的问题
+
+### v1.10.5
+1. refactor: 自动检测是否支持sni
+2. fix: reqScript和resScript里面换行自动变成空格问题
+3. feat: 支持域名为ip的https请求
+4. feat: 全面支持proxifier代理请求
+5. feat: 自动切换web请求和普通的socket请求
+
 ### v1.10.4
 1. feat: 支持tunnel代理http请求
 2. feat: 支持通过设置 `tunnel://host enable://inspect` 后在 `Network -> Response -> Frames` 查看tunnel请求的内容

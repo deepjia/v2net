@@ -85,7 +85,7 @@ Example of `profile.ini`
 skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
 # proxy/bypass/capture: extensions selected last time
 proxy = ✈️Beijing
-bypass = 🚄GliderRule
+bypass = 🚄GostRule
 capture =
 # system: whether V2Net is set as system proxy last time
 system = false
@@ -96,7 +96,7 @@ InnerPortBypass = 8214
 [Proxy]
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
-✈️Backup = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password, 60, tfo=true
+✈️Beijing = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password, 60, tfo=true
 🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345
 🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
 🇨🇳Shenzhen = v2ray, example.org, 443, /ws, uuid

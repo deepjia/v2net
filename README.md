@@ -96,12 +96,12 @@ InnerPortBypass = 8214
 [Proxy]
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
+✈️Backup = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password, 60, tfo=true
 🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345
 🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
 🇨🇳Shenzhen = v2ray, example.org, 443, /ws, uuid
 🇯🇵Tokyo = gost, socks5, server_ip, 12345
 🇺🇸Denver = gost, http, server_ip, 12345
-✈️Backup = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password, 60, true
 
 [Bypass]
 # Same as proxy

@@ -1,8 +1,8 @@
 os: osx
 language: generic
 before_install:
-- brew update
-- brew outdated python || brew upgrade python
+- brew uninstall --ignore-dependencies python
+- brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/f2a764ef944b1080be64bd88dca9a1d80130c558/Formula/python.rb
 install:
 - pip3 install -r requirements.txt
 script:

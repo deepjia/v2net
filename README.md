@@ -13,19 +13,18 @@ V2Net is a network assistant tool for macOS.
 Some popular network tools are integrated, with the ability of adding new extensions without coding:
 
 * Proxy:
-[gost](https://github.com/ginuerzh/gost/tree/2.6)
 [glider](https://github.com/nadoo/glider)
-[ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
+[gost](https://github.com/ginuerzh/gost/tree/2.6)
 [v2ray](https://www.v2ray.com)
+[ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
 * Bypass:
-[gost](https://github.com/ginuerzh/gost/tree/2.6)
 [glider](https://github.com/nadoo/glider)
+[gost](https://github.com/ginuerzh/gost/tree/2.6)
 [privoxy](https://www.privoxy.org)
 * Capture:
 [whistle](https://github.com/avwo/whistle)
 
 This is an alpha version.
-
 
 
 ## Snapshot
@@ -60,7 +59,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install shadowsocks-libev
 ```
 
-Or just use the glider extension instead.
+Or just use the glider extension instead, which is recommended.
 
 ### v2ray
 Install with [Homebrew](https://brew.sh/):

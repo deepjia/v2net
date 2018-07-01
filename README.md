@@ -84,8 +84,8 @@ Example of `profile.ini`
 [General]
 skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
 # proxy/bypass/capture: extensions selected last time
-proxy = ✈️Beijing
-bypass = 🚄GostRule
+proxy =
+bypass =
 capture =
 # system: whether V2Net is set as system proxy last time
 system = false
@@ -96,22 +96,27 @@ InnerPortBypass = 8214
 [Proxy]
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
-✈️Beijing = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password, 60, tfo=true
-🇨🇳Shanghai = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345
-🇨🇳Hangzhou = gost, ss, chacha20:password@server_ip, 12345
-🇨🇳Shenzhen = v2ray, example.org, 443, /ws, uuid
-🇯🇵Tokyo = gost, socks5, server_ip, 12345
-🇺🇸Denver = gost, http, server_ip, 12345
+🇨🇳Eg.ProxyAndBypass(glider)(ss)GliderProxyAndBypass = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345, glider.txt
+🇨🇳Eg.Proxy(glider)(ss)ExampleProxy = glider, ss, chacha20-ietf-poly1305:password@server_ip, 12345
+🇨🇳️Eg.Proxy(ss-libev)(ss)ExampleProxy = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password
+🇨🇳Eg.Proxy(v2ray)(vmess-tls-ws)ExampleProxy = v2ray, example.org, 443, /ws, uuid
+🇯🇵Eg.Proxy(gost)(socks5)ExampleProxy = gost, socks5, server_ip, 12345
+🇺🇸Eg.Proxy(gost)(http)ExampleProxy = gost, http, server_ip, 8080
+🇨🇳Eg.Proxy(gost)(https)ExampleProxy = gost, https, user:password@server_ip, 443
 
 [Bypass]
 # Same as proxy
-🚄GostRule = gost, , 127.0.0.1, , gost.txt
-🚄GliderRule = glider, , 127.0.0.1, , glider.txt
-🚄PrivoxyRule = privoxy, , 127.0.0.1, , privoxy.txt
+🚄Eg.Bypass(glider)(auto)GliderBypass = glider, , 127.0.0.1, , glider.txt
+🚄Eg.Bypass(gost)(auto)GostBypass = gost, , 127.0.0.1, , gost.txt
+🚄Eg.Bypass(privoxy)(auto)PrivoxyBypass = privoxy, , 127.0.0.1, , privoxy.txt
 
 [Capture]
 # Same as proxy
-🛠️Whistle = whistle
+🛠️Eg.Capture(glider)(auto)Whistle = whistle
+# You can also put global proxies here
+🛠️Eg.Capture(gost)(http)JMeter = gost, http, 127.0.0.1, 8888
+🛠Eg.Capture(gost)(http)Charles = gost, http, 127.0.0.1, 8888
+🛠️Eg.Capture(gost)(http)BurpSuite = gost, http, 127.0.0.1, 8080
 
 ```
 

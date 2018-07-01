@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidg
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW
-VERSION = '0.3.1'
+VERSION = '0.3.2'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')
@@ -40,8 +40,7 @@ logging.basicConfig(
 
 class Extension(QThread):
     # 定义信号
-    update_port = pyqtSignal()
-    toggle_menu = pyqtSignal()
+    update = pyqtSignal()
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -66,15 +65,17 @@ class Extension(QThread):
 
     def select(self):
         # 绑定信号的动作
-        def update_port():
+        def update():
+            # update current
             current[self.role] = self
             self.menus_to_enable[0].setText(self.role.title() + ": " + self.local_port)
             if self.local_port == user_port:
                 global http_port, socks5_port
                 http_port = self.local_port if self.http else ''
                 socks5_port = self.local_port if self.socks5 else ''
-
-        def toggle_menu():
+            # set proxy
+            if system:
+                setproxy()
             # 设置菜单选中状态
             self.QAction.setChecked(True)
             self.menus_to_enable[0].setChecked(True)
@@ -85,8 +86,7 @@ class Extension(QThread):
                 else:
                     menu_to_enable.setDisabled(True)
 
-        self.update_port.connect(update_port)
-        self.toggle_menu.connect(toggle_menu)
+        self.update.connect(update)
         # 在新线程中启动组件
         self.last = current[self.role]
         current[self.role] = self
@@ -177,12 +177,7 @@ class Extension(QThread):
                                         stdout=self.ext_log, stderr=subprocess.STDOUT)
         logging.info(
             '[' + self.ext_name + ']' + self.name + " started, pid=" + str(self.process.pid))
-        self.update_port.emit()
-        if system:
-            setproxy()
-        profile.write('General', self.role, self.name)
-        # Enable/Disable other menu items like Dashboard
-        self.toggle_menu.emit()
+        self.update.emit()
         logging.debug(
             '[' + self.ext_name + ']' + self.name + " release Lock.")
         mutex.unlock()
@@ -299,11 +294,13 @@ def setproxy():
     if system:
         logging.info('Setting system proxy...')
         if http_port:
+            logging.info('Setting http proxy...')
             subprocess.run('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
             subprocess.run('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
             # subprocess.run('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
             # subprocess.run('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
         if socks5_port:
+            logging.info('Setting socks5 proxy...')
             subprocess.run('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
             # subprocess.run('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
         subprocess.run(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
@@ -328,6 +325,11 @@ def main():
     exitcode = 0
     try:
         menu = QMenu()
+        # Add Tray
+        tray = QSystemTrayIcon()
+        tray.setIcon(QIcon("icon.png"))
+        tray.setVisible(True)
+        tray.setContextMenu(menu)
         # Proxy
         m_proxy = QAction("Proxy: Disabled")
         m_proxy.setShortcut('Ctrl+P')
@@ -411,12 +413,6 @@ def main():
         m_quit.setShortcut('Ctrl+Q')
         m_quit.triggered.connect(APP.quit)
         menu.addAction(m_quit)
-
-        # Add Tray
-        tray = QSystemTrayIcon()
-        tray.setIcon(QIcon("icon.png"))
-        tray.setVisible(True)
-        tray.setContextMenu(menu)
         # sys.exit(app.exec_())
         exitcode = APP.exec_()
     finally:

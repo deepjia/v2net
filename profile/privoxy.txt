@@ -415,3 +415,7 @@ taobao
 .bwh1.net
 .alibabacloud.com
 .router.asus.com
+.lagou.com
+.zhipin.com
+.kanzhun.com
+.testerhome.com

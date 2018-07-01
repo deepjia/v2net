@@ -414,3 +414,7 @@ domain=fanzai.me
 domain=bwh1.net
 domain=alibabacloud.com
 domain=router.asus.com
+domain=lagou.com
+domain=zhipin.com
+domain=kanzhun.com
+domain=testerhome.com

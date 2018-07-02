@@ -176,5 +176,8 @@ cd v2net
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python setup.py py2app
+pyinstaller v2net.spec
+# You can also use py2app
+# pip install py2app
+# python setup.py py2app
 ```

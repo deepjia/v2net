@@ -76,6 +76,7 @@ class Extension(QThread):
             # set proxy
             if system:
                 setproxy()
+            profile.write('General', self.role, self.name)
             # 设置菜单选中状态
             self.QAction.setChecked(True)
             self.menus_to_enable[0].setChecked(True)
@@ -150,7 +151,7 @@ class Extension(QThread):
         logging.info(
             '[' + self.ext_name + ']' + self.name + " Local Prot" + self.local_port)
         logging.info(
-            '[' + self.ext_name + ']' + self.name + " Server Prot" + server_port)
+            '[' + self.ext_name + ']' + self.name + " Server Prot" + str(server_port))
         # jinja2 渲染参数
         self.jinja_dict['ExtensionPort'] = self.local_port
         json_dict = json.loads(Template(json_str).render(**self.jinja_dict))
@@ -186,13 +187,17 @@ class Extension(QThread):
         logging.info(
             '[' + self.ext_name + ']' + self.name + " is going to stop. pid=" + str(self.process.pid))
         # 调用停止命令
-        if self.exitargs:
-            subprocess.run(self.bin + ' ' + self.exitargs, shell=True, check=True,
-                           stdout=self.ext_log, stderr=subprocess.STDOUT)
-        # 结束启动进程
-        if self.process.returncode is None:
-            self.process.terminate()
-            self.process.wait()
+        try:
+            if self.exitargs:
+                subprocess.run(self.bin + ' ' + self.exitargs, shell=True, check=True,
+                               stdout=self.ext_log, stderr=subprocess.STDOUT)
+            # 结束启动进程
+            if self.process.returncode is None:
+                self.process.terminate()
+                self.process.wait()
+        except subprocess.CalledProcessError as e:
+            logging.error(
+                '[' + self.ext_name + ']' + self.name + " stop failed. Error: " + str(e))
         self.ext_log.close()
         if system:
             setproxy()

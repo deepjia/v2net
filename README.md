@@ -24,7 +24,7 @@ Some popular network tools are integrated, with the ability of adding new extens
 * Capture:
 [whistle](https://github.com/avwo/whistle)
 
-This is an alpha version.
+This is an **alpha** version.
 
 
 ## Snapshot
@@ -59,7 +59,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install shadowsocks-libev
 ```
 
-Or just use the glider extension instead, which is recommended.
+Or just use the **glider** extension instead, which is **recommended**.
 
 ### v2ray
 Install with [Homebrew](https://brew.sh/):
@@ -131,6 +131,8 @@ Remember to backup config before manual upgrade.
 
    *bin:* Main binary of extensions.
 
+   *pre*: Preparation command.
+   
    *args*: Arguments for binary to start with.
 
    *url*: Dashboard url for capture extension.

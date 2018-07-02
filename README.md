@@ -174,7 +174,7 @@ Remember to backup config before manual upgrade.
 ## Build
 
 ```bash
-brew install python
+brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/f2a764ef944b1080be64bd88dca9a1d80130c558/Formula/python.rb
 git clone https://github.com/deepjia/v2net.git
 cd v2net
 python3 -m venv venv

@@ -1,8 +1,8 @@
 {
-  "bin": "node",
-  "args": "./extension/whistle/module/whistle/bin/whistle.js start -p {{ ExtensionPort }} -D ./extension/whistle",
+  "bin": "w2",
+  "args": "start -p {{ ExtensionPort }} -D ./extension/whistle",
   "url": "http://127.0.0.1:{{ ExtensionPort }}/#Network",
-  "exitargs": "./extension/whistle/module/whistle/bin/whistle.js stop",
+  "exitargs": "stop",
   "keys": ["ServerProtocol"],
   "http": true,
   "socks5": true,

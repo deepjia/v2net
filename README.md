@@ -40,17 +40,14 @@ Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in brows
 Install prerequisites if only you need the related extension.
 ### whistle
 
-Node.js is needed.
+Node.js and whistle are needed.
 
-Install Node.js with [Homebrew](https://brew.sh/):
+Install with [Homebrew](https://brew.sh/):
 
 ```bash
 brew install node
-# or:
-# brew install node@8
+npm install -g whistle
 ```
-
-Or download installer from <https://nodejs.org/en/>
 
 ### ss-libev
 Install with [Homebrew](https://brew.sh/):

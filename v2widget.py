@@ -20,3 +20,4 @@ class Dashboard(QMainWindow):
 
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
+WINDOW = Dashboard()

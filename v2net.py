@@ -11,7 +11,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QLabel
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
-from v2widget import APP, Dashboard
+from v2widget import APP, WINDOW
 
 
 VERSION = '0.3.3'
@@ -280,7 +280,6 @@ class Capture(Extension):
     def __init__(self, *args):
         super().__init__(*args)
         self.role = 'capture'
-        self.dashboard = Dashboard()
         # 自动启动上次启动的扩展
         if self.name == selected['capture']:
             self.select()
@@ -288,7 +287,7 @@ class Capture(Extension):
     def select(self):
         super().select()
         self.menus_to_enable[1].triggered.connect(
-            lambda: self.dashboard.show_dashboard(self.ext_name.title(), self.url))
+            lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
     #def stop_and_reset(self):
     #    super().stop()

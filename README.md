@@ -39,7 +39,6 @@ Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in brows
 ## Prerequisites
 Install prerequisites if only you need the related extension.
 ### whistle
-
 Node.js and whistle are needed.
 
 Install with [Homebrew](https://brew.sh/):

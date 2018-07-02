@@ -14,7 +14,7 @@ from v2config import Config
 from v2widget import APP, WINDOW
 
 
-VERSION = '0.3.3'
+VERSION = '0.3.4'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')

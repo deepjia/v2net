@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidg
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 from v2widget import APP, WINDOW
+
 VERSION = '0.3.2'
 base_path = os.path.dirname(os.path.realpath(__file__))
 ext_path = os.path.join(base_path, 'extension')
@@ -59,7 +60,7 @@ class Extension(QThread):
         self.name = extension[0]
         self.QAction = QAction(self.name)
         self.QAction.setCheckable(True)
-        self.QAction.triggered.connect(self.select)
+        self.QAction.triggered.connect(self.manual_select)
         self.last = None
         self.ext_log = None
 
@@ -93,12 +94,36 @@ class Extension(QThread):
         current[self.role] = self
         self.start()
 
+    def manual_select(self):
+        self.select()
+        self.reset_userside()
+
+    def reset_userside(self):
+        for role in ('capture', 'bypass', 'proxy'):
+            if role == self.role:
+                break
+            if current[role]:
+                current[role].select()
+                break
+
+    def reset_serverside(self):
+        begin = False
+        for role in ('capture', 'bypass', 'proxy'):
+            if role == self.role:
+                begin = True
+                continue
+            if begin and current[role]:
+                current[role].select()
+                break
+
     def run(self):
         mutex.lock()
         logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
         # 关闭已启动的同类组件
         if self.last:
-            self.last.stop_and_reset()
+            #self.last.stop_and_reset()
+            self.last.stop()
+            self.last.reset_serverside()
             self.last = None
         # 读取配置文件，获得 json 字符串
         ext_dir = os.path.join(ext_path, self.ext_name)
@@ -134,7 +159,9 @@ class Extension(QThread):
             if begin and current[role]:
                 logging.info(
                     '[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(current[role].process.pid))
-                current[role].stop_and_reset()
+                #current[role].stop_and_reset()
+                current[role].stop()
+                current[role].reset_serverside()
                 current[role].start()
                 if not server_port:
                     if role == 'proxy':
@@ -202,16 +229,19 @@ class Extension(QThread):
         if system:
             setproxy()
 
-    def stop_and_reset(self):
-        self.stop()
+    #def stop_and_reset(self):
+        #self.stop()
 
     def disable(self, *menus_to_disable):
         for menu_to_disable in menus_to_disable:
             menu_to_disable.setDisabled(True)
         menus_to_disable[0].setText(self.role.title() + ": Disabled")
         self.QAction.setChecked(False)
-        self.stop_and_reset()
+        self.stop()
+        self.reset_serverside()
+        #self.stop_and_reset()
         current[self.role] = None
+        self.reset_userside()
 
 
 class Proxy(Extension):
@@ -235,10 +265,10 @@ class Bypass(Extension):
         if self.name == selected['bypass']:
             self.select()
 
-    def stop_and_reset(self):
-        super().stop()
-        if current['proxy']:
-            current['proxy'].select()
+    #def stop_and_reset(self):
+        #super().stop()
+        #if current['proxy']:
+            #current['proxy'].select()
 
     def disable(self, *args):
         super().disable(*args)
@@ -258,10 +288,10 @@ class Capture(Extension):
         self.menus_to_enable[1].triggered.connect(
             lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
-    def stop_and_reset(self):
-        super().stop()
-        if current['bypass']:
-            current['bypass'].select()
+    #def stop_and_reset(self):
+    #    super().stop()
+    #    if current['bypass']:
+    #        current['bypass'].select()
 
     def disable(self, *args):
         super().disable(*args)

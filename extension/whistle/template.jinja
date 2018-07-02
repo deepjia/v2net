@@ -1,1 +1,1 @@
-{% if ServerPort %} {"filesOrder":[],"selectedList":[],"disabledDefalutRules":false,"defalutRules":"/./ {% if ServerProtocol=='socks5' %}socks{% endif %}{% if ServerProtocol=='http' %}proxy{% endif %}://127.0.0.1:{{ ServerPort }}"} {% endif %}
+{"filesOrder":[],"selectedList":[]{% if ServerPort %},"disabledDefalutRules":false,"defalutRules":"/./ {% if ServerProtocol=='socks5' %}socks{% endif %}{% if ServerProtocol=='http' %}proxy{% endif %}://127.0.0.1:{{ ServerPort }}"{% endif %}}

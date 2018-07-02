@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl
+import subprocess
 
 
 class Dashboard(QMainWindow):
@@ -14,8 +15,9 @@ class Dashboard(QMainWindow):
     def show_dashboard(self, extesnion_name, url):
         self.setWindowTitle('[V2Net Dashboard] ' + extesnion_name + ' Web Debugger')
         self.browser.setUrl(QUrl(url))
-        self.show()
-        self.activateWindow()
+        #self.show()
+        #self.activateWindow()
+        subprocess.run('open -a Safari ' + url, shell=True, check=True)
 
 
 APP = QApplication([])

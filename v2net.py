@@ -8,14 +8,24 @@ import pyperclip
 import logging
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QLabel
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
-from v2widget import APP, WINDOW
 
 
-VERSION = '0.3.4'
-base_path = os.path.dirname(os.path.realpath(__file__))
+VERSION = '0.4.0'
+APP = QApplication([])
+APP.setQuitOnLastWindowClosed(False)
+
+if getattr(sys, 'frozen', False):
+    # we are running in a bundle
+    base_path = sys._MEIPASS
+    os.chdir(base_path)
+    os.environ['PATH']='/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+else:
+    # we are running in a normal Python environment
+    base_path = os.path.dirname(os.path.realpath(__file__))
+print(os.path.abspath(__file__))
 ext_path = os.path.join(base_path, 'extension')
 profile_path = os.path.join(base_path, 'profile')
 profile = Config(os.path.join(profile_path, 'profile.ini'))
@@ -286,8 +296,9 @@ class Capture(Extension):
 
     def select(self):
         super().select()
-        self.menus_to_enable[1].triggered.connect(
-            lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
+        self.menus_to_enable[1].triggered.connect(lambda: show_dashboard(self.url))
+        #self.menus_to_enable[1].triggered.connect(
+        #    lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
     #def stop_and_reset(self):
     #    super().stop()
@@ -306,6 +317,9 @@ def quitapp(code=0):
     logging.info("Bye")
     APP.exit(code)
 
+
+def show_dashboard(url):
+    subprocess.run('open -a Safari ' + url, shell=True, check=True)
 
 def setproxy_menu(qaction):
     global system
@@ -363,7 +377,7 @@ def main():
         menu = QMenu()
         # Add Tray
         tray = QSystemTrayIcon()
-        tray.setIcon(QIcon("icon.png"))
+        tray.setIcon(QIcon(os.path.join(base_path, "icon.png")))
         tray.setVisible(True)
         tray.setContextMenu(menu)
         # Proxy

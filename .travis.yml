@@ -1,12 +1,12 @@
 os: osx
 language: generic
 before_install:
-- brew uninstall --ignore-dependencies python
+- brew unlink python
 - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/f2a764ef944b1080be64bd88dca9a1d80130c558/Formula/python.rb
 install:
 - pip3 install -r requirements.txt
 script:
-- python3 setup.py py2app
+- pyinstaller v2net.spec
 before_deploy:
 - brew install p7zip
 - 7za a V2Net.7z ./dist/V2Net.app

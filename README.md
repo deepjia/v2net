@@ -10,7 +10,9 @@ Please review your `profile.ini` and satisfy the prerequisites before upgrading.
 ## Introduction
 V2Net is a network assistant tool for macOS.
 
-Some popular network tools are integrated, with the ability of adding new extensions without coding:
+It focuses on extendability, with all extensions working in a way of proxy chains. 
+
+Some popular network tools are integrated, with the ability of adding new extensions without programming:
 
 * Proxy:
 [glider](https://github.com/nadoo/glider)

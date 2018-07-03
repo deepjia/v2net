@@ -319,7 +319,7 @@ def quitapp(code=0):
 
 
 def show_dashboard(url):
-    subprocess.run('open -a Safari ' + url, shell=True, check=True)
+    subprocess.Popen('open -a Safari ' + url, shell=True)
 
 def setproxy_menu(qaction):
     global system
@@ -335,26 +335,26 @@ def setproxy_menu(qaction):
 
 def setproxy():
     logging.info('Unsetting system proxy...')
-    subprocess.run('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
-    subprocess.run('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
-    subprocess.run('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
-    # subprocess.run('networksetup -setwebproxystate "Ethernet" off',shell=True)
-    # subprocess.run('networksetup -setsecurewebproxystate "Ethernet" off',shell=True)
-    # subprocess.run('networksetup -setsocksfirewallproxystate "Ethernet" off',shell=True)
+    subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
+    subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
+    subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
+    # subprocess.Popen('networksetup -setwebproxystate "Ethernet" off',shell=True)
+    # subprocess.Popen('networksetup -setsecurewebproxystate "Ethernet" off',shell=True)
+    # subprocess.Popen('networksetup -setsocksfirewallproxystate "Ethernet" off',shell=True)
     if system:
         logging.info('Setting system proxy...')
         if http_port:
             logging.info('Setting http proxy...')
-            subprocess.run('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
-            subprocess.run('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
-            # subprocess.run('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
-            # subprocess.run('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
+            subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
+            subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
+            # subprocess.Popen('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
+            # subprocess.Popen('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
         if socks5_port:
             logging.info('Setting socks5 proxy...')
-            subprocess.run('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
-            # subprocess.run('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
-        subprocess.run(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
-        # subprocess.run(['networksetup', '-setproxybypassdomains', 'Ethernet', *skip_proxy])
+            subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
+            # subprocess.Popen('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
+        subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
+        # subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Ethernet', *skip_proxy])
 
 
 def copy_shell():
@@ -434,13 +434,13 @@ def main():
         # Common
         m_log = QAction("Log Folder")
         m_log.setShortcut('Ctrl+L')
-        m_log.triggered.connect(lambda: subprocess.call(["open", log_path]))
+        m_log.triggered.connect(lambda: subprocess.run(["open", log_path]))
         m_profile = QAction("Profile Folder")
         m_profile.setShortcut('Ctrl+F')
-        m_profile.triggered.connect(lambda: subprocess.call(["open", profile_path]))
+        m_profile.triggered.connect(lambda: subprocess.run(["open", profile_path]))
         m_extension = QAction("Extension Folder")
         m_extension.setShortcut('Ctrl+E')
-        m_extension.triggered.connect(lambda: subprocess.call(["open", ext_path]))
+        m_extension.triggered.connect(lambda: subprocess.run(["open", ext_path]))
         m_copy_shell = QAction("Copy Shell Command")
         m_copy_shell.setShortcut('Ctrl+S')
         m_set_system = QAction("As System Proxy: " + user_port)

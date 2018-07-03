@@ -34,7 +34,7 @@ System tray menu:
 
 ![2018-06-12 9 37 24](https://user-images.githubusercontent.com/1452602/41293869-126d75f6-6e89-11e8-86a3-a1854d9c6abc.png)
 
-Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in browser:
+Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in browser (removed in 0.4.0, use Safari instead):
 
 ![2018-06-10 12 45 22](https://user-images.githubusercontent.com/1452602/41194011-ba955c06-6c47-11e8-9419-3795d344de15.png)
 
@@ -183,3 +183,9 @@ pyinstaller v2net.spec
 # pip install py2app
 # python setup.py py2app
 ```
+
+## Todos
+- [ ] Performance tuning
+- [ ] Version check
+- [ ] Change profile location
+- [ ] Proxy group with connection test

@@ -1,3 +1,4 @@
+git+https://github.com/deepjia/pyinstaller.git
 altgraph==0.15
 future==0.16.0
 Jinja2==2.10
@@ -5,7 +6,6 @@ macholib==1.9
 MarkupSafe==1.0
 modulegraph==0.16
 pefile==2017.11.5
-PyInstaller==3.3.1
 pyperclip==1.6.2
 PyQt5==5.10.1
 sip==4.19.8

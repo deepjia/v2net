@@ -1,7 +1,7 @@
 # -*- mode: python -*-
 
 block_cipher = None
-VERSION = '0.4.0'
+VERSION = '0.4.1'
 
 a = Analysis(['v2net.py'],
              pathex=['/Users/Jia/Dropbox/Projects/v2net'],
@@ -22,14 +22,15 @@ exe = EXE(pyz,
           name='v2net',
           debug=False,
           strip=False,
-          upx=True,
-          console=False , icon='icon.icns')
+          upx=False,
+          console=False,
+          icon='icon.icns')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
                strip=False,
-               upx=True,
+               upx=False,
                name='v2net')
 app = BUNDLE(coll,
              name='V2Net.app',
@@ -38,8 +39,9 @@ app = BUNDLE(coll,
              info_plist={
              'CFBundleName': 'V2Net',
              'CFBundleDisplayName': 'V2Net',
-             'LSUIElement': 'True',
-             'NSHighResolutionCapable': 'True',
+             'NSHighResolutionCapable': True,
+             'LSUIElement': True,
+             'LSBackgroundOnly': True,
              'CFBundleVersion': VERSION,
              'CFBundleShortVersionString': VERSION
              },)

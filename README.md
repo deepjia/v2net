@@ -94,6 +94,8 @@ Download latest release:
 
 Unpack and drag `V2Net.app` to `Application` folder.
 
+Open `Application` folder, right click on `V2Net.app`, hold `option` key, click `Open`.
+
 ## Usage
 Example of `profile.ini`
 

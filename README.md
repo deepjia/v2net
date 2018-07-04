@@ -116,6 +116,8 @@ InnerPortBypass = 8214
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
 🇨🇳Eg.ProxyAndBypass(glider)(ss)GliderProxyAndBypass = glider, ss, AEAD_CHACHA20_POLY1305:password@server_ip, 12345, glider.txt
+# Gost may have better stablity than glider, but do not support AEAD
+🇯🇵Eg.ProxyAndBypass(gost)(ss)ExampleProxy = gost, ss, chacha20:password@server_ip, 12345, gost.txt
 🇨🇳Eg.Proxy(glider)(ss)ExampleProxy = glider, ss, AEAD_AES_256_GCM:password@server_ip, 12345
 🇨🇳️Eg.Proxy(ss-libev)(ss)ExampleProxy = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password
 🇨🇳Eg.Proxy(v2ray)(vmess-tls-ws)ExampleProxy = v2ray, example.org, 443, /ws, uuid

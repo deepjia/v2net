@@ -13,7 +13,7 @@ from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
 
-VERSION = '0.4.1'
+VERSION = '0.4.2'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 

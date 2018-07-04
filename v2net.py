@@ -340,27 +340,28 @@ def setproxy_menu(qaction):
 
 
 def setproxy():
-    logging.info('Unsetting system proxy...')
-    subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
-    subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
-    subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
-    # subprocess.Popen('networksetup -setwebproxystate "Ethernet" off',shell=True)
-    # subprocess.Popen('networksetup -setsecurewebproxystate "Ethernet" off',shell=True)
-    # subprocess.Popen('networksetup -setsocksfirewallproxystate "Ethernet" off',shell=True)
     if system:
-        logging.info('Setting system proxy...')
-        if http_port:
-            logging.info('Setting http proxy...')
-            subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
-            subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
-            # subprocess.Popen('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
-            # subprocess.Popen('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
-        if socks5_port:
-            logging.info('Setting socks5 proxy...')
-            subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
-            # subprocess.Popen('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
+        logging.info('Setting proxy bypass...')
         subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
         # subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Ethernet', *skip_proxy])
+    if system and http_port:
+        logging.info('Setting http proxy...')
+        subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
+        subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
+        # subprocess.Popen('networksetup -setwebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
+        # subprocess.Popen('networksetup -setsecurewebproxy "Ethernet" 127.0.0.1 ' + http_port,shell=True)
+    else:
+        logging.info('Unsetting http proxy...')
+        subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
+        subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
+    if system and socks5_port:
+        logging.info('Setting socks5 proxy...')
+        subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
+        # subprocess.Popen('networksetup -setsocksfirewallproxy "Ethernet" 127.0.0.1 ' + socks5_port,shell=True)
+    else:
+        logging.info('Unsetting socks5 proxy...')
+        subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
+        subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
 
 
 def copy_shell():

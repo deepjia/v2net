@@ -137,86 +137,92 @@ class Extension(QThread):
             self.last.reset_serverside()
             self.last = None
         # 读取配置文件，获得 json 字符串
-        ext_dir = os.path.join(ext_path, self.ext_name)
-        with open(os.path.join(ext_dir, 'extension.json'), 'r') as f:
-            json_str = f.read()
-            json_temp = json.loads(json_str)
-        # 从临时的 json 词典中提取关键数据
-        default = json_temp['default']
-        keys = json_temp['keys']
-        self.http = json_temp['http']
-        self.socks5 = json_temp['socks5']
-        # 使用关键数据，渲染 json 字符串，然后重新提取 json 词典
-        self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
-        self.jinja_dict['ExtensionDir'] = ext_dir
-        # 确定 Local Port
-        self.local_port = user_port
-        begin = False
-        for role in ('proxy', 'bypass', 'capture'):
-            if role == self.role:
-                begin = True
-                continue
-            if begin and current[role]:
-                self.local_port = user_inner_port_proxy if self.role == 'proxy' else user_inner_port_bypass
-                break
+        try:
+            ext_dir = os.path.join(ext_path, self.ext_name)
+            with open(os.path.join(ext_dir, 'extension.json'), 'r') as f:
+                json_str = f.read()
+                json_temp = json.loads(json_str)
+            # 从临时的 json 词典中提取关键数据
+            default = json_temp['default']
+            keys = json_temp['keys']
+            self.http = json_temp['http']
+            self.socks5 = json_temp['socks5']
+            # 使用关键数据，渲染 json 字符串，然后重新提取 json 词典
+            self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
+            self.jinja_dict['ExtensionDir'] = ext_dir
+            # 确定 Local Port
+            self.local_port = user_port
+            begin = False
+            for role in ('proxy', 'bypass', 'capture'):
+                if role == self.role:
+                    begin = True
+                    continue
+                if begin and current[role]:
+                    self.local_port = user_inner_port_proxy if self.role == 'proxy' else user_inner_port_bypass
+                    break
 
-        # 确定 Server Port 和 Protocol
-        server_port = self.jinja_dict.get('ServerPort')
-        begin = False
-        for role in ('capture', 'bypass', 'proxy'):
-            if role == self.role:
-                begin = True
-                continue
-            if begin and current[role]:
-                logging.info(
-                    '[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(current[role].process.pid))
-                #current[role].stop_and_reset()
-                current[role].stop()
-                current[role].reset_serverside()
-                current[role].start()
-                if not server_port:
-                    if role == 'proxy':
-                        # 上级代理默认为 socks5
-                        if not self.jinja_dict.get('ServerProtocol'):
-                            self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
-                        server_port = user_inner_port_proxy
-                    else:
-                        if not self.jinja_dict.get('ServerProtocol'):
-                            self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
-                        server_port = user_inner_port_bypass
-                    self.jinja_dict['ServerPort'] = server_port
+            # 确定 Server Port 和 Protocol
+            server_port = self.jinja_dict.get('ServerPort')
+            begin = False
+            for role in ('capture', 'bypass', 'proxy'):
+                if role == self.role:
+                    begin = True
+                    continue
+                if begin and current[role]:
+                    logging.info(
+                        '[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(current[role].process.pid))
+                    # current[role].stop_and_reset()
+                    current[role].stop()
+                    current[role].reset_serverside()
+                    current[role].start()
+                    if not server_port:
+                        if role == 'proxy':
+                            # 上级代理默认为 socks5
+                            if not self.jinja_dict.get('ServerProtocol'):
+                                self.jinja_dict['ServerProtocolSocks5'] = current[role].socks5
+                                self.jinja_dict['ServerProtocolHttp'] = current[role].http
+                                self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
+                            server_port = user_inner_port_proxy
+                        else:
+                            if not self.jinja_dict.get('ServerProtocol'):
+                                self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
+                            server_port = user_inner_port_bypass
+                        self.jinja_dict['ServerPort'] = server_port
 
-        logging.info(
-            '[' + self.ext_name + ']' + self.name + " Local Prot" + self.local_port)
-        logging.info(
-            '[' + self.ext_name + ']' + self.name + " Server Prot" + str(server_port))
-        # jinja2 渲染参数
-        self.jinja_dict['ExtensionPort'] = self.local_port
-        json_dict = json.loads(Template(json_str).render(**self.jinja_dict))
-        self.bin = json_dict['bin']
-        render = json_dict['render']
-        self.url = json_dict.get('url')
-        args = json_dict.get('args', '')
-        pre = json_dict.get('pre')
-        self.exitargs = json_dict.get('exitargs')
-        for src, dist in render.items():
-            with open(os.path.join(ext_dir, src), 'r') as f:
-                content = Template(f.read()).render(**self.jinja_dict)
-            with open(os.path.join(ext_dir, dist), 'r+') as f:
-                if content != Template(f.read()).render(**self.jinja_dict):
-                    f.seek(0)
-                    f.write(content)
-                    f.truncate()
-        # 启动子进程
-        self.ext_log = open(os.path.join(log_path, self.name + '.log'), 'a', encoding='UTF-8')
-        if pre:
-            subprocess.run(pre, shell=True, check=True,
-                           stdout=self.ext_log, stderr=subprocess.STDOUT)
-        self.process = subprocess.Popen(self.bin + ' ' + args, shell=True,
-                                        stdout=self.ext_log, stderr=subprocess.STDOUT)
-        logging.info(
-            '[' + self.ext_name + ']' + self.name + " started, pid=" + str(self.process.pid))
-        self.update.emit()
+            logging.info(
+                '[' + self.ext_name + ']' + self.name + " Local Prot" + self.local_port)
+            logging.info(
+                '[' + self.ext_name + ']' + self.name + " Server Prot" + str(server_port))
+            # jinja2 渲染参数
+            self.jinja_dict['ExtensionPort'] = self.local_port
+            json_dict = json.loads(Template(json_str).render(**self.jinja_dict))
+            self.bin = json_dict['bin']
+            render = json_dict['render']
+            self.url = json_dict.get('url')
+            args = json_dict.get('args', '')
+            pre = json_dict.get('pre')
+            self.exitargs = json_dict.get('exitargs')
+            for src, dist in render.items():
+                with open(os.path.join(ext_dir, src), 'r') as f:
+                    content = Template(f.read()).render(**self.jinja_dict)
+                with open(os.path.join(ext_dir, dist), 'r+') as f:
+                    if content != Template(f.read()).render(**self.jinja_dict):
+                        f.seek(0)
+                        f.write(content)
+                        f.truncate()
+            # 启动子进程
+            self.ext_log = open(os.path.join(log_path, self.name + '.log'), 'a', encoding='UTF-8')
+            if pre:
+                subprocess.run(pre, shell=True, check=True,
+                               stdout=self.ext_log, stderr=subprocess.STDOUT)
+            self.process = subprocess.Popen(self.bin + ' ' + args, shell=True,
+                                            stdout=self.ext_log, stderr=subprocess.STDOUT)
+            logging.info(
+                '[' + self.ext_name + ']' + self.name + " started, pid=" + str(self.process.pid))
+            self.update.emit()
+        except Exception as e:
+            logging.error(
+                '[' + self.ext_name + ']' + self.name + " start failed. Error: " + str(e))
         logging.debug(
             '[' + self.ext_name + ']' + self.name + " release Lock.")
         mutex.unlock()

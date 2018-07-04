@@ -1,5 +1,5 @@
 {
-  "bin": "./extension/privoxy/bin/privoxy",
+  "bin": "privoxy",
   "pre": "cat ./profile/{{Bypass}} >> ./extension/privoxy/head.action; sed '1s/alias/{alias}/' ./extension/privoxy/head.action > ./extension/privoxy/user.action",
   "args": "--no-daemon ./extension/privoxy/config",
   "exitargs": "",

@@ -25,6 +25,7 @@ Some popular network tools are integrated, with the ability of adding new extens
 [privoxy](https://www.privoxy.org)
 * Capture:
 [whistle](https://github.com/avwo/whistle)
+[mitmweb](https://mitmproxy.org)
 
 This is an **alpha** version.
 
@@ -50,6 +51,13 @@ brew install node
 npm install -g whistle
 ```
 
+### v2ray
+Install with [Homebrew](https://brew.sh/):
+
+```bash
+brew install v2ray/v2ray/v2ray-core
+```
+
 ### ss-libev
 Install with [Homebrew](https://brew.sh/):
 
@@ -59,13 +67,25 @@ brew install shadowsocks-libev
 
 Or just use the **glider** extension instead, which is **recommended**.
 
-### v2ray
+### privoxy
 Install with [Homebrew](https://brew.sh/):
 
 ```bash
-brew install v2ray/v2ray/v2ray-core
+brew install privoxy
 ```
 
+Or just use the **glider** or **gost** extension instead, which is **recommended**.
+
+### mitmweb
+Python3 and mitmproxy are needed.
+
+Install with [Homebrew](https://brew.sh/):
+
+```bash
+brew install mitmproxy
+```
+
+Or install whistle instead, which is **recommended**.
 
 ## Installation
 Download latest release:
@@ -172,7 +192,9 @@ Remember to backup config before manual upgrade.
 ## Build
 
 ```bash
+# PyInstaller & py2app do not support python 3.7
 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/f2a764ef944b1080be64bd88dca9a1d80130c558/Formula/python.rb
+brew switch brew switch python 3.6.5_1
 git clone https://github.com/deepjia/v2net.git
 cd v2net
 python3 -m venv venv

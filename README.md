@@ -115,26 +115,32 @@ InnerPortBypass = 8214
 [Proxy]
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
+# For gost and glider, you can combine proxy and bypass:
 🇨🇳Eg.ProxyAndBypass(glider)(ss)GliderProxyAndBypass = glider, ss, AEAD_CHACHA20_POLY1305:password@server_ip, 12345, glider.txt
-# Gost may have better stablity than glider, but do not support AEAD
 🇯🇵Eg.ProxyAndBypass(gost)(ss)ExampleProxy = gost, ss, chacha20:password@server_ip, 12345, gost.txt
-🇨🇳Eg.Proxy(glider)(ss)ExampleProxy = glider, ss, AEAD_AES_256_GCM:password@server_ip, 12345
-🇨🇳️Eg.Proxy(ss-libev)(ss)ExampleProxy = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password
-🇨🇳Eg.Proxy(v2ray)(vmess-tls-ws)ExampleProxy = v2ray, example.org, 443, /ws, uuid
+# gost and glider support RFC protocols:
 🇯🇵Eg.Proxy(gost)(socks5)ExampleProxy = gost, socks5, server_ip, 12345
 🇺🇸Eg.Proxy(gost)(http)ExampleProxy = gost, http, server_ip, 8080
 🇨🇳Eg.Proxy(gost)(https)ExampleProxy = gost, https, user:password@server_ip, 443
+# gost may have better stablity than glider, but do not support AEAD:
+🇯🇵Eg.Proxy(gost)(ss)ExampleProxy = gost, ss, chacha20:password@server_ip, 12345, gost.txt
+🇨🇳Eg.Proxy(glider)(ss)ExampleProxy = glider, ss, AEAD_AES_256_GCM:password@server_ip, 12345
+# Other extensions need prerequisites:
+🇨🇳️Eg.Proxy(ss-libev)(ss)ExampleProxy = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password
+🇨🇳Eg.Proxy(v2ray)(vmess-tls-ws)ExampleProxy = v2ray, example.org, 443, /ws, uuid
+
 
 [Bypass]
-# Same as proxy
+# Same as proxy, gost and glider are preferred:
 🚄Eg.Bypass(glider)(auto)GliderBypass = glider, , 127.0.0.1, , glider.txt
 🚄Eg.Bypass(gost)(auto)GostBypass = gost, , 127.0.0.1, , gost.txt
 🚄Eg.Bypass(privoxy)(auto)PrivoxyBypass = privoxy, , 127.0.0.1, , privoxy.txt
 
 [Capture]
-# Same as proxy
-🛠️Eg.Capture(glider)(auto)Whistle = whistle
-# You can also put global proxies here
+# Same as proxy, whistle recommended:
+🛠️Eg.Capture(whistle)(auto)Whistle = whistle
+🛠️Eg.Capture(mitmweb)(auto)mitmweb = mitmweb
+# You can also put global proxies here:
 🛠️Eg.Capture(gost)(http)JMeter = gost, http, 127.0.0.1, 8888
 🛠Eg.Capture(gost)(http)Charles = gost, http, 127.0.0.1, 8888
 🛠️Eg.Capture(gost)(http)BurpSuite = gost, http, 127.0.0.1, 8080

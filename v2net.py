@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#coding=utf-8
 import sys
 import os
 import shutil
@@ -18,12 +19,12 @@ APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 
 if getattr(sys, 'frozen', False):
-    # we are running in a bundle
+    # PyInstaller Bundle
     base_path = sys._MEIPASS
     os.chdir(base_path)
     os.environ['PATH']='/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
 else:
-    # we are running in a normal Python environment
+    # Normal Python Environment
     base_path = os.path.dirname(os.path.realpath(__file__))
 print(os.path.abspath(__file__))
 ext_path = os.path.join(base_path, 'extension')
@@ -107,9 +108,9 @@ class Extension(QThread):
 
     def manual_select(self):
         self.select()
-        self.reset_userside()
+        self.reset_downstream()
 
-    def reset_userside(self):
+    def reset_downstream(self):
         for role in ('capture', 'bypass', 'proxy'):
             if role == self.role:
                 break
@@ -117,7 +118,7 @@ class Extension(QThread):
                 current[role].select()
                 break
 
-    def reset_serverside(self):
+    def reset_upstream(self):
         begin = False
         for role in ('capture', 'bypass', 'proxy'):
             if role == self.role:
@@ -134,7 +135,7 @@ class Extension(QThread):
         if self.last:
             #self.last.stop_and_reset()
             self.last.stop()
-            self.last.reset_serverside()
+            self.last.reset_upstream()
             self.last = None
         # 读取配置文件，获得 json 字符串
         try:
@@ -173,7 +174,7 @@ class Extension(QThread):
                         '[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(current[role].process.pid))
                     # current[role].stop_and_reset()
                     current[role].stop()
-                    current[role].reset_serverside()
+                    current[role].reset_upstream()
                     current[role].start()
                     if not server_port:
                         if role == 'proxy':
@@ -255,10 +256,10 @@ class Extension(QThread):
         menus_to_disable[0].setText(self.role.title() + ": Disabled")
         self.QAction.setChecked(False)
         self.stop()
-        self.reset_serverside()
+        self.reset_upstream()
         #self.stop_and_reset()
         current[self.role] = None
-        self.reset_userside()
+        self.reset_downstream()
 
 
 class Proxy(Extension):

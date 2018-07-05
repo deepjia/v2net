@@ -15,13 +15,13 @@ It focuses on extendability, with all extensions working in a way of proxy chain
 Some popular network tools are integrated, with the ability of adding new extensions without programming:
 
 * Proxy:
-[glider](https://github.com/nadoo/glider)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
+[glider](https://github.com/nadoo/glider)
 [v2ray](https://www.v2ray.com)
 [ss-libev](https://github.com/shadowsocks/shadowsocks-libev)
 * Bypass:
-[glider](https://github.com/nadoo/glider)
 [gost](https://github.com/ginuerzh/gost/tree/2.6)
+[glider](https://github.com/nadoo/glider)
 [privoxy](https://www.privoxy.org)
 * Capture:
 [whistle](https://github.com/avwo/whistle)
@@ -57,6 +57,7 @@ Install with [Homebrew](https://brew.sh/):
 ```bash
 brew install v2ray/v2ray/v2ray-core
 ```
+Currently only vmess+ws+tls support, but you can customize to support more.
 
 ### ss-libev
 Install with [Homebrew](https://brew.sh/):
@@ -65,7 +66,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install shadowsocks-libev
 ```
 
-Or just use the **glider** extension instead, which is **recommended**.
+Or just use the **gost** (for non-AEAD) or **glider** extension instead, which are **recommended**.
 
 ### privoxy
 Install with [Homebrew](https://brew.sh/):
@@ -74,7 +75,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install privoxy
 ```
 
-Or just use the **glider** or **gost** extension instead, which is **recommended**.
+Or just use the **gost** or **glider** extension instead, which are **recommended**.
 
 ### mitmweb
 Python3 and mitmproxy are needed.
@@ -221,3 +222,4 @@ pyinstaller v2net.spec
 - [ ] Version check
 - [ ] Change profile location
 - [ ] Proxy group with connection test
+- [ ] May add [AnyProxy](https://github.com/alibaba/anyproxy) extension

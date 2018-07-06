@@ -224,9 +224,10 @@ class Extension(QThread):
         except Exception as e:
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " start failed. Error: " + str(e))
-        logging.debug(
-            '[' + self.ext_name + ']' + self.name + " release Lock.")
-        mutex.unlock()
+        finally:
+            logging.debug(
+                '[' + self.ext_name + ']' + self.name + " release Lock.")
+            mutex.unlock()
 
     def stop(self):
         logging.info(
@@ -243,9 +244,10 @@ class Extension(QThread):
         except subprocess.CalledProcessError as e:
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " stop failed. Error: " + str(e))
-        self.ext_log.close()
-        if system:
-            setproxy()
+        finally:
+            self.ext_log.close()
+            if system:
+                setproxy()
 
     #def stop_and_reset(self):
         #self.stop()

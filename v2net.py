@@ -170,8 +170,8 @@ class Extension(QThread):
                     begin = True
                     continue
                 if begin and current[role]:
-                    logging.info(
-                        '[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(current[role].process.pid))
+                    logging.info('[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(
+                        current[role].process.pid if current[role].process else None))
                     # current[role].stop_and_reset()
                     current[role].stop()
                     current[role].reset_upstream()
@@ -218,8 +218,8 @@ class Extension(QThread):
                                stdout=self.ext_log, stderr=subprocess.STDOUT)
             self.process = subprocess.Popen(self.bin + ' ' + args, shell=True,
                                             stdout=self.ext_log, stderr=subprocess.STDOUT)
-            logging.info(
-                '[' + self.ext_name + ']' + self.name + " started, pid=" + str(self.process.pid))
+            logging.info('[' + self.ext_name + ']' + self.name + " started, pid=" + str(
+                self.process.pid if self.process else None))
             self.update.emit()
         except Exception as e:
             logging.error(
@@ -230,8 +230,8 @@ class Extension(QThread):
             mutex.unlock()
 
     def stop(self):
-        logging.info(
-            '[' + self.ext_name + ']' + self.name + " is going to stop. pid=" + str(self.process.pid))
+        logging.info('[' + self.ext_name + ']' + self.name + " is going to stop. pid=" + str(
+            self.process.pid if self.process else None))
         # 调用停止命令
         try:
             if self.exitargs:

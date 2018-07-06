@@ -3,7 +3,7 @@
 
 **⚠️ IMPORTANT ⚠️**
 
-I changed names & prerequisites of some extensions in version 0.3.0 (alpha).
+I changed names & prerequisites of some extensions since version 0.3.0 (alpha).
 
 Please review your `profile.ini` and satisfy the prerequisites before upgrading.
 
@@ -35,7 +35,7 @@ System tray menu:
 
 ![2018-06-12 9 37 24](https://user-images.githubusercontent.com/1452602/41293869-126d75f6-6e89-11e8-86a3-a1854d9c6abc.png)
 
-Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in browser (removed in 0.4.0, use Safari instead):
+Show [whistle](https://github.com/avwo/whistle) dashboard page in built-in browser (**removed since 0.4.0**, use Safari instead):
 
 ![2018-06-10 12 45 22](https://user-images.githubusercontent.com/1452602/41194011-ba955c06-6c47-11e8-9419-3795d344de15.png)
 

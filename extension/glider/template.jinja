@@ -2,4 +2,4 @@ verbose=True
 
 listen=:{{ ExtensionPort }}
 
-forward={{ServerProtocol}}://{{ ServerAddress }}:{{ ServerPort }}
+{% if ServerPort %}forward={{ServerProtocol}}://{{ ServerAddress }}:{{ ServerPort }}{% endif %}

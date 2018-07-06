@@ -58,6 +58,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install v2ray/v2ray/v2ray-core
 ```
 Currently only vmess+ws+tls support, but you can customize to support more.
+For vmess only, **glider** is also a choice.
 
 ### ss-libev
 Install with [Homebrew](https://brew.sh/):
@@ -117,8 +118,9 @@ InnerPortBypass = 8214
 # The order of values is defined in "keys" field of extension.json in extension folders
 # name = extension_name, *values
 # For gost and glider, you can combine proxy and bypass:
-🇨🇳Eg.ProxyAndBypass(glider)(ss)GliderProxyAndBypass = glider, ss, AEAD_CHACHA20_POLY1305:password@server_ip, 12345, glider.txt
+🇨🇳Eg.ProxyAndBypass(glider)(ss)ExampleProxy = glider, ss, AEAD_CHACHA20_POLY1305:password@server_ip, 12345, glider.txt
 🇯🇵Eg.ProxyAndBypass(gost)(ss)ExampleProxy = gost, ss, chacha20:password@server_ip, 12345, gost.txt
+🇨🇳Eg.ProxyAndBypass(glider)(vmess)ExampleProxy = glider, vmess, uuid@server_ip, 12345?alterID=num, glider.txt
 # gost and glider support RFC protocols:
 🇯🇵Eg.Proxy(gost)(socks5)ExampleProxy = gost, socks5, server_ip, 12345
 🇺🇸Eg.Proxy(gost)(http)ExampleProxy = gost, http, server_ip, 8080
@@ -223,3 +225,4 @@ pyinstaller v2net.spec
 - [ ] Change profile location
 - [ ] Proxy group with connection test
 - [ ] May add [AnyProxy](https://github.com/alibaba/anyproxy) extension
+- [ ] Update format of profile.

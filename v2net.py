@@ -245,9 +245,11 @@ class Extension(QThread):
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " stop failed. Error: " + str(e))
         finally:
-            self.ext_log.close()
-            if system:
-                setproxy()
+            try:
+                self.ext_log.close()
+            finally:
+                if system:
+                    setproxy()
 
     #def stop_and_reset(self):
         #self.stop()

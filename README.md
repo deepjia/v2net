@@ -143,6 +143,7 @@ InnerPortBypass = 8214
 # Same as proxy, whistle recommended:
 🛠️Eg.Capture(whistle)(auto)Whistle = whistle
 🛠️Eg.Capture(mitmweb)(auto)mitmweb = mitmweb
+🛠️Eg.Capture(whistle)(auto)WhistleCustomRule = whistle, whistle.txt
 # You can also put global proxies here:
 🛠️Eg.Capture(gost)(http)JMeter = gost, http, 127.0.0.1, 8888
 🛠Eg.Capture(gost)(http)Charles = gost, http, 127.0.0.1, 8888

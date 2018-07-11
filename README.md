@@ -25,7 +25,7 @@ Some popular network tools are integrated, with the ability of adding new extens
 [privoxy](https://www.privoxy.org)
 * Capture:
 [whistle](https://github.com/avwo/whistle)
-[mitmweb](https://mitmproxy.org)
+[mitmproxy/mitmweb](https://mitmproxy.org)
 
 This is an **alpha** version.
 
@@ -78,16 +78,17 @@ brew install privoxy
 
 Or just use the **gost** or **glider** extension instead, which are **recommended**.
 
-### mitmweb
+### mitmproxy/mitmweb
 Python3 and mitmproxy are needed.
 
-Install with [Homebrew](https://brew.sh/):
+Install mitmproxy with [Homebrew](https://brew.sh/), which will automatically install/upgrade python3:
 
 ```bash
 brew install mitmproxy
 ```
+Since mitmproxy depends on python3, it will not work if you want to use an older version of python3 from Homebrew, like me. Then you need to download from [official site](https://snapshots.mitmproxy.org/4.0.3/pathod-4.0.3-osx.tar.gz), unpack and add it to PATH.
 
-Or install whistle instead, which is **recommended**.
+Instead, install whistle which is **recommended**.
 
 ## Installation
 Download latest release:
@@ -142,6 +143,7 @@ InnerPortBypass = 8214
 [Capture]
 # Same as proxy, whistle recommended:
 🛠️Eg.Capture(whistle)(auto)Whistle = whistle
+🛠️Eg.Capture(mitmweb)(auto)mitmproxy = mitmproxy
 🛠️Eg.Capture(mitmweb)(auto)mitmweb = mitmweb
 🛠️Eg.Capture(whistle)(auto)WhistleCustomRule = whistle, whistle.txt
 # You can also put global proxies here:

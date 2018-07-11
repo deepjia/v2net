@@ -419,3 +419,14 @@ taobao
 .zhipin.com
 .kanzhun.com
 .testerhome.com
+.toutiao.com
+.pingwest.com
+.xmind.net
+.linkedin.com
+.liaoxuefeng.com
+.qcloudimg.com
+.yuewen.com
+.xincheping.com
+.weiyun.com
+.tencent.com
+.anyproxy.io

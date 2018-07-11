@@ -1,0 +1,1 @@
+mitmproxy -p {{ ExtensionPort }}{% if ServerProtocolHttp %} --mode upstream:http://127.0.0.1:{{ ServerPort }}{% endif %}

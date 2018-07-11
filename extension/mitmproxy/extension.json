@@ -1,0 +1,11 @@
+{
+  "bin": "open",
+  "args": "./extension/mitmproxy/run.command",
+  "url": "",
+  "exitargs": "",
+  "keys": ["ExtraArgs"],
+  "http": true,
+  "socks5": false,
+  "render": {"template.jinja": "run.command"},
+  "default": {}
+}

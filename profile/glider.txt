@@ -418,3 +418,15 @@ domain=lagou.com
 domain=zhipin.com
 domain=kanzhun.com
 domain=testerhome.com
+domain=toutiao.com
+domain=pingwest.com
+domain=xmind.net
+domain=linkedin.com
+domain=liaoxuefeng.com
+domain=qcloudimg.com
+domain=yuewen.com
+domain=xincheping.com
+domain=weiyun.com
+domain=tencent.com
+domain=anyproxy.io
+

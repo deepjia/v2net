@@ -227,5 +227,4 @@ pyinstaller v2net.spec
 - [ ] Version check
 - [ ] Change profile location
 - [ ] Proxy group with connection test
-- [ ] May add [AnyProxy](https://github.com/alibaba/anyproxy) extension
 - [ ] Update format of profile.

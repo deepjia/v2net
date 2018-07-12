@@ -91,7 +91,7 @@ glider -config CONFIGPATH -listen :8080 -verbose
 
 ## Usage
 ```bash
-glider v0.6.0 usage:
+glider v0.6.2 usage:
   -checkduration int
         proxy check duration(seconds) (default 30)
   -checkwebsite string
@@ -147,8 +147,17 @@ SSR scheme:
 VMess scheme:
   vmess://[security:]uuid@host:port?alterID=num
 
-Available methods for vmess:
-  NONE, (will add aes-128-gcm and chacha20-poly1305 later)
+Available securities for vmess:
+  none, aes-128-gcm, chacha20-poly1305
+
+TLS scheme:
+  tls://host:port[?skipVerify=true]
+
+TLS with a specified proxy protocol:
+  tls://host:port[?skipVerify=true],proxy://scheme
+  tls://host:port[?skipVerify=true],http://[user:pass@]
+  tls://host:port[?skipVerify=true],socks5://[user:pass@]
+  tls://host:port[?skipVerify=true],vmess://[security:]uuid@?alterID=num
 
 Available forward strategies:
   rr: Round Robin mode
@@ -185,7 +194,7 @@ Examples:
   glider -listen redir://:1081 -forward "ssr://method:pass@1.1.1.1:8444?protocol=a&protocol_param=b&obfs=c&obfs_param=d"
     -listen on :1081 as a transparent redirect server, forward all requests via remote ssr server.
 
-  glider -listen redir://:1081 -forward "tls://1.1.1.1:443,vmess://user:method@?alterID=10"
+  glider -listen redir://:1081 -forward "tls://1.1.1.1:443,vmess://security:uuid@?alterID=10"
     -listen on :1081 as a transparent redirect server, forward all requests via remote vmess server.
 
   glider -listen tcptun://:80=2.2.2.2:80 -forward ss://method:pass@1.1.1.1:8443

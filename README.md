@@ -86,7 +86,7 @@ Install mitmproxy with [Homebrew](https://brew.sh/), which will automatically in
 ```bash
 brew install mitmproxy
 ```
-Since mitmproxy depends on python3, it will not work if you want to use an older version of python3 from Homebrew, like me. Then you need to download from [official site](https://snapshots.mitmproxy.org/4.0.3/pathod-4.0.3-osx.tar.gz), unpack and add it to PATH.
+Since mitmproxy depends on python3, it will not work if you want to use an older version of python3 from Homebrew, like me. Then you need to download from [official site](https://snapshots.mitmproxy.org/4.0.3/mitmproxy-4.0.3-osx.tar.gz), unpack and add it to PATH.
 
 Instead, install whistle which is **recommended**.
 

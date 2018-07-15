@@ -14,7 +14,7 @@ from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
 
-VERSION = '0.4.4'
+VERSION = '0.4.5'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 
@@ -204,9 +204,9 @@ class Extension(QThread):
             pre = json_dict.get('pre')
             self.exitargs = json_dict.get('exitargs')
             for src, dist in render.items():
-                with open(os.path.join(ext_dir, src), 'r') as f:
+                with open(src, 'r') as f:
                     content = Template(f.read()).render(**self.jinja_dict)
-                with open(os.path.join(ext_dir, dist), 'r+') as f:
+                with open(dist, 'r+') as f:
                     if content != Template(f.read()).render(**self.jinja_dict):
                         f.seek(0)
                         f.write(content)

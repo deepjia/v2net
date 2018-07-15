@@ -189,14 +189,14 @@ Remember to backup config before manual upgrade.
 
    ```json
    {
-     "bin": "./extension/myext/bin/mybinary",
-     "args": "-p {{ ExtensionPort }} -c ./extension/myext/myconfig.ini",
+     "bin": "{{ ExtensionDir }}/bin/mybinary",
+     "args": "-p {{ ExtensionPort }} -c {{ ExtensionDir }}/myconfig.ini",
      "url": "http://127.0.0.1:{{ ExtensionPort }}",
      "exitargs": "",
      "keys": ["ServerProtocol", "ServerAddress", "SeverPort", "ServerPassword"],
      "http": false,
      "socks5": true,
-     "render": {"mytemplate.jinja": "myconfig.ini"},
+     "render": {"{{ ExtensionDir }}/mytemplate.jinja": "{{ ExtensionDir }}/myconfig.ini"},
      "default": {"ServerAddress":"example.com"}
    }
    ```

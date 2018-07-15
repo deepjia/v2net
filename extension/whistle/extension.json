@@ -1,11 +1,11 @@
 {
   "bin": "w2",
-  "args": "start -p {{ ExtensionPort }} -D ./extension/whistle",
+  "args": "start -p {{ ExtensionPort }} -D {{ ExtensionDir }}",
   "url": "http://127.0.0.1:{{ ExtensionPort }}/#Network",
   "exitargs": "stop",
   "keys": ["ServerProtocol", "Rule"],
   "http": true,
   "socks5": true,
-  "render": {"{% if Rule %}../../profile/{{ Rule }}{% else %}template.jinja{% endif %}": ".whistle/rules/properties"},
+  "render": {"{% if Rule %}./profile/{{ Rule }}{% else %}{{ ExtensionDir }}/template.jinja{% endif %}": "{{ ExtensionDir }}/.whistle/rules/properties"},
   "default": {}
 }

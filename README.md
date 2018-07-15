@@ -67,7 +67,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install shadowsocks-libev
 ```
 
-Or just use the **gost** (for non-AEAD) or **glider** extension instead, which are **recommended**.
+Or just use the **gost** (for non-AEAD encryption) or **glider** (for AEAD encryption) extension instead, which are **recommended**.
 
 ### privoxy
 Install with [Homebrew](https://brew.sh/):
@@ -86,7 +86,7 @@ Install mitmproxy with [Homebrew](https://brew.sh/), which will automatically in
 ```bash
 brew install mitmproxy
 ```
-Since mitmproxy depends on python3, it will not work if you want to use an older version of python3 from Homebrew, like me. Then you need to download from [official site](https://snapshots.mitmproxy.org/4.0.3/mitmproxy-4.0.3-osx.tar.gz), unpack and add it to PATH.
+Since mitmproxy depends on python3, it will not work if you want to use an older version of python3 from Homebrew, like me. Then you need to download from [official site](https://snapshots.mitmproxy.org/4.0.3/mitmproxy-4.0.3-osx.tar.gz), unpack and move/link binaries to `/usr/local/bin`.
 
 Instead, install whistle which is **recommended**.
 
@@ -126,7 +126,11 @@ InnerPortBypass = 8214
 🇯🇵Eg.Proxy(gost)(socks5)ExampleProxy = gost, socks5, server_ip, 12345
 🇺🇸Eg.Proxy(gost)(http)ExampleProxy = gost, http, server_ip, 8080
 🇨🇳Eg.Proxy(gost)(https)ExampleProxy = gost, https, user:password@server_ip, 443
-# gost may have better stablity than glider, but do not support AEAD:
+# for ss protocol, gost may have better stablity than glider, but do not support AEAD
+# gost support:
+#    aes-128-cfb, aes-192-cfb, aes-256-cfb, bf-cfb, cast5-cfb, des-cfb, rc4-md5, rc4-md5-6, chacha20, salsa20, rc4, table
+# glider support:
+#    AEAD_AES_128_GCM AEAD_AES_192_GCM AEAD_AES_256_GCM AEAD_CHACHA20_POLY1305 AES-128-CFB AES-128-CTR AES-192-CFB AES-192-CTR AES-256-CFB AES-256-CTR CHACHA20-IETF XCHACHA20
 🇯🇵Eg.Proxy(gost)(ss)ExampleProxy = gost, ss, chacha20:password@server_ip, 12345, gost.txt
 🇨🇳Eg.Proxy(glider)(ss)ExampleProxy = glider, ss, AEAD_AES_256_GCM:password@server_ip, 12345
 # Other extensions need prerequisites:

@@ -161,8 +161,6 @@ InnerPortBypass = 8214
 
 ```
 
-Remember to backup config before manual upgrade.
-
 ## Customization
 
 1. Open `Extension Folder`

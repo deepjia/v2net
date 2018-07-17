@@ -100,11 +100,11 @@ Unpack and drag `V2Net.app` to `Application` folder.
 Open `Application` folder, right click on `V2Net.app`, hold `option` key, click `Open`.
 
 ## Usage
-(Optional) Click `Edit Setting File`, set `CustomPath` to store config files.
+(Optional) Click `Edit Setting File`, set `CustomPath` to store config files. In this way, your config can sync with iCloud Drive/Dropbox, etc.
 
 Click `Open Profile Folder`, and edit your profiles.
 
-Example of `profile.ini`
+Example of `profile.ini`:
 
 ```ini
 [General]

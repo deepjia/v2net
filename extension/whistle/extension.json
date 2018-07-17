@@ -6,6 +6,6 @@
   "keys": ["ServerProtocol", "Rule"],
   "http": true,
   "socks5": true,
-  "render": {"{% if Rule %}./profile/{{ Rule }}{% else %}{{ ExtensionDir }}/template.jinja{% endif %}": "{{ ExtensionDir }}/.whistle/rules/properties"},
+  "render": {"{% if Rule %}{{ ProfileDir }}/{{ Rule }}{% else %}{{ ExtensionDir }}/template.jinja{% endif %}": "{{ ExtensionDir }}/.whistle/rules/properties"},
   "default": {}
 }

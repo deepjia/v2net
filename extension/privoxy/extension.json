@@ -1,6 +1,6 @@
 {
   "bin": "privoxy",
-  "pre": "cat ./profile/{{Bypass}} >> {{ ExtensionDir }}/head.action; sed '1s/alias/{alias}/' {{ ExtensionDir }}/head.action > {{ ExtensionDir }}/user.action",
+  "pre": "cat {{ ProfileDir }}/{{Bypass}} >> {{ ExtensionDir }}/head.action; sed '1s/alias/{alias}/' {{ ExtensionDir }}/head.action > {{ ExtensionDir }}/user.action",
   "args": "--no-daemon {{ ExtensionDir }}/config",
   "exitargs": "",
   "keys": ["Protocol", "ServerAddress", "ServerPort", "Bypass"],

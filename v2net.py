@@ -151,6 +151,7 @@ class Extension(QThread):
             # 使用关键数据，渲染 json 字符串，然后重新提取 json 词典
             self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
             self.jinja_dict['ExtensionDir'] = ext_dir
+            self.jinja_dict['ProfileDir'] = profile_path
             # 确定 Local Port
             self.local_port = user_port
             begin = False

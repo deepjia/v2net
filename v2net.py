@@ -26,21 +26,41 @@ if getattr(sys, 'frozen', False):
 else:
     # Normal Python Environment
     base_path = os.path.dirname(os.path.realpath(__file__))
-print(os.path.abspath(__file__))
 ext_path = os.path.join(base_path, 'extension')
-profile_path = os.path.join(base_path, 'profile')
-profile = Config(os.path.join(profile_path, 'profile.ini'))
+log_path = os.path.join(os.environ.get('HOME'), 'Library', 'Logs', 'V2Net')
+# Built-in examples
+profile_path_example = os.path.join(base_path, 'profile')
+setting_example = os.path.join(base_path, 'setting.ini')
+# Application Support Folder
+application_support_path = os.path.join(os.environ.get('HOME'), 'Library', 'Application Support', 'V2Net')
+if not os.path.exists(application_support_path):
+    os.mkdir(application_support_path)
+setting_file = os.path.join(application_support_path, 'setting.ini')
+# Copy example setting and confirm profile path
+if not os.path.exists(setting_file):
+    shutil.copy(setting_example, setting_file)
+setting = Config(setting_file)
+custom_path = setting.get('Global', 'CustomPath', application_support_path)
+# Use Application Support Folder as Default
+if not os.path.exists(custom_path):
+    custom_path = application_support_path
+profile_path = os.path.join(custom_path, 'profile')
+profile_file = os.path.join(profile_path, 'profile.ini')
+# Copy example profiles
+if not os.path.exists(profile_path):
+    shutil.copytree(profile_path_example, profile_path)
+profile = Config(profile_file)
+# General profile
 skip_proxy = [x.strip() for x in profile.get('General', 'skip-proxy').split(',')]
 http_port = ''
 socks5_port = ''
-user_port = profile.get('General', 'Port', '8014')
-user_inner_port_proxy = profile.get('General', 'InnerPortProxy', '8114')
-user_inner_port_bypass = profile.get('General', 'InnerPortBypass', '8214')
+user_port = profile.get('General', 'port', profile.get('General', 'Port', '8014'))
+user_port_proxy = profile.get('General', 'port-proxy', profile.get('General', 'InnerPortProxy', '8114'))
+user_port_bypass = profile.get('General', 'port-bypass', profile.get('General', 'InnerPortBypass', '8214'))
 selected = {x: profile.get('General', x) for x in ('proxy', 'bypass', 'capture')}
 current = {x: None for x in ('proxy', 'bypass', 'capture')}
 system = True if profile.get('General', 'system', 'false').strip().lower() == 'true' else False
 mutex = QMutex()
-log_path = os.path.join(base_path, 'log')
 shutil.rmtree(log_path, True)
 os.mkdir(log_path)
 logging.basicConfig(
@@ -160,7 +180,7 @@ class Extension(QThread):
                     begin = True
                     continue
                 if begin and current[role]:
-                    self.local_port = user_inner_port_proxy if self.role == 'proxy' else user_inner_port_bypass
+                    self.local_port = user_port_proxy if self.role == 'proxy' else user_port_bypass
                     break
 
             # 确定 Server Port 和 Protocol
@@ -184,11 +204,11 @@ class Extension(QThread):
                                 self.jinja_dict['ServerProtocolSocks5'] = current[role].socks5
                                 self.jinja_dict['ServerProtocolHttp'] = current[role].http
                                 self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
-                            server_port = user_inner_port_proxy
+                            server_port = user_port_proxy
                         else:
                             if not self.jinja_dict.get('ServerProtocol'):
                                 self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
-                            server_port = user_inner_port_bypass
+                            server_port = user_port_bypass
                         self.jinja_dict['ServerPort'] = server_port
 
             logging.info(
@@ -445,13 +465,13 @@ def main():
         menu.addAction(m_dashboard)
 
         # Common
-        m_log = QAction("Log Folder")
+        m_profile = QAction("Open Profile Folder")
+        m_profile.setShortcut('Ctrl+O')
+        m_profile.triggered.connect(lambda: subprocess.run(["open", profile_path]))
+        m_log = QAction("Open Log Folder")
         m_log.setShortcut('Ctrl+L')
         m_log.triggered.connect(lambda: subprocess.run(["open", log_path]))
-        m_profile = QAction("Profile Folder")
-        m_profile.setShortcut('Ctrl+F')
-        m_profile.triggered.connect(lambda: subprocess.run(["open", profile_path]))
-        m_extension = QAction("Extension Folder")
+        m_extension = QAction("Open Extension Folder")
         m_extension.setShortcut('Ctrl+E')
         m_extension.triggered.connect(lambda: subprocess.run(["open", ext_path]))
         m_copy_shell = QAction("Copy Shell Command")
@@ -467,8 +487,8 @@ def main():
         menu.addSeparator()
         menu.addAction(m_set_system)
         menu.addSeparator()
-        menu.addAction(m_log)
         menu.addAction(m_profile)
+        menu.addAction(m_log)
         menu.addAction(m_extension)
         menu.addAction(m_copy_shell)
         menu.addSeparator()

@@ -10,7 +10,7 @@ from v2net import VERSION
 
 APP = ['v2net.py']
 APP_NAME = 'V2Net'
-DATA_FILES = ['extension', 'profile', 'icon.png', 'setproxy.sh']
+DATA_FILES = ['extension', 'profile', 'icon.png', 'setproxy.sh', 'setting.ini']
 OPTIONS = {
     'emulate_shell_environment': True,
     'iconfile': 'icon.icns',

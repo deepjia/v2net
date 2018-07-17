@@ -115,9 +115,9 @@ bypass =
 capture =
 # system: whether V2Net is set as system proxy last time
 system = false
-Port = 8014
-InnerPortProxy = 8114
-InnerPortBypass = 8214
+port = 8014
+port-proxy = 8114
+port-bypass = 8214
 
 [Proxy]
 # The order of values is defined in "keys" field of extension.json in extension folders

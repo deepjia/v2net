@@ -465,8 +465,11 @@ def main():
         menu.addAction(m_dashboard)
 
         # Common
+        m_setting = QAction("Open Setting File")
+        m_setting.setShortcut('Ctrl+O')
+        m_setting.triggered.connect(lambda: subprocess.run(["open", setting_file]))
         m_profile = QAction("Open Profile Folder")
-        m_profile.setShortcut('Ctrl+O')
+        m_profile.setShortcut('Ctrl+P')
         m_profile.triggered.connect(lambda: subprocess.run(["open", profile_path]))
         m_log = QAction("Open Log Folder")
         m_log.setShortcut('Ctrl+L')
@@ -487,6 +490,7 @@ def main():
         menu.addSeparator()
         menu.addAction(m_set_system)
         menu.addSeparator()
+        menu.addAction(m_setting)
         menu.addAction(m_profile)
         menu.addAction(m_log)
         menu.addAction(m_extension)

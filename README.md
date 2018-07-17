@@ -100,6 +100,10 @@ Unpack and drag `V2Net.app` to `Application` folder.
 Open `Application` folder, right click on `V2Net.app`, hold `option` key, click `Open`.
 
 ## Usage
+(Optional) Click `Edit Setting File`, set `CustomPath` to store config files.
+
+Click `Open Profile Folder`, and edit your profiles.
+
 Example of `profile.ini`
 
 ```ini
@@ -229,6 +233,4 @@ pyinstaller v2net.spec
 ## Todos
 - [ ] Performance tuning
 - [ ] Version check
-- [ ] Change profile location
 - [ ] Proxy group with connection test
-- [ ] Update format of profile.

@@ -14,7 +14,7 @@ from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
 
-VERSION = '0.4.6'
+VERSION = '0.4.7'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 
@@ -346,6 +346,9 @@ def quitapp(code=0):
     logging.info("Quiting App...")
     for ins in filter(None, current.values()):
         ins.stop()
+    if system:
+        unset_http_proxy()
+        unset_socks5_proxy()
     logging.info("Bye")
     APP.exit(code)
 
@@ -376,19 +379,24 @@ def setproxy():
         subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
         subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
     else:
-        logging.info('Unsetting http proxy...')
-        subprocess.Popen(['bash', 'setproxy.sh', 'httpoff'])
-        subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
-        subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
+        unset_http_proxy()
     if system and socks5_port:
         logging.info('Setting socks5 proxy...')
         subprocess.Popen(['bash', 'setproxy.sh', 'socks5on', socks5_port])
         subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
     else:
-        logging.info('Unsetting socks5 proxy...')
-        subprocess.Popen(['bash', 'setproxy.sh', 'socks5off'])
-        subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
+        unset_socks5_proxy()
 
+def unset_http_proxy():
+    logging.info('Unsetting http proxy...')
+    subprocess.Popen(['bash', 'setproxy.sh', 'httpoff'])
+    subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
+    subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
+
+def unset_socks5_proxy():
+    logging.info('Unsetting socks5 proxy...')
+    subprocess.Popen(['bash', 'setproxy.sh', 'socks5off'])
+    subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
 
 def copy_shell():
     cmd = []

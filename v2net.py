@@ -172,6 +172,7 @@ class Extension(QThread):
             self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
             self.jinja_dict['ExtensionDir'] = ext_dir
             self.jinja_dict['ProfileDir'] = profile_path
+            self.jinja_dict['HomeDir'] = os.environ.get('HOME')
             # 确定 Local Port
             self.local_port = user_port
             begin = False
@@ -207,6 +208,8 @@ class Extension(QThread):
                             server_port = user_port_proxy
                         else:
                             if not self.jinja_dict.get('ServerProtocol'):
+                                self.jinja_dict['ServerProtocolSocks5'] = current[role].socks5
+                                self.jinja_dict['ServerProtocolHttp'] = current[role].http
                                 self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
                             server_port = user_port_bypass
                         self.jinja_dict['ServerPort'] = server_port
@@ -223,6 +226,7 @@ class Extension(QThread):
             self.url = json_dict.get('url')
             args = json_dict.get('args', '')
             pre = json_dict.get('pre')
+            self.kill = json_dict.get('kill')
             self.exitargs = json_dict.get('exitargs')
             for src, dist in render.items():
                 with open(src, 'r') as f:
@@ -262,6 +266,9 @@ class Extension(QThread):
             if self.process.returncode is None:
                 self.process.terminate()
                 self.process.wait()
+            if self.kill:
+                subprocess.run(self.kill, shell=True,
+                               stdout=self.ext_log, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " stop failed. Error: " + str(e))

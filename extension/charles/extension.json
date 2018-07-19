@@ -1,0 +1,12 @@
+{
+  "bin": "open",
+  "args": "-a Charles.app",
+  "url": "",
+  "exitargs": "",
+  "kill": "pkill Charles",
+  "keys": ["Config"],
+  "http": true,
+  "socks5": false,
+  "render": {"{% if Config %}{{ ProfileDir }}/{{ Config }}{% else %}{{ ExtensionDir }}/template.jinja{% endif %}": "{{ HomeDir }}/Library/Preferences/com.xk72.charles.config"},
+  "default": {}
+}

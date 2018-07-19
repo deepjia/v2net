@@ -28,6 +28,7 @@ Some popular network tools are integrated, with the ability of adding new extens
 * Capture:
 [whistle](https://github.com/avwo/whistle)
 [mitmproxy/mitmweb](https://mitmproxy.org)
+[charles](https://www.charlesproxy.com/)
 
 This is an **alpha** version.
 
@@ -95,6 +96,9 @@ brew install mitmproxy
 Since mitmproxy depends on python3, it will not work if you want to use an older version of python3 from Homebrew, like me. Then you need to download from [official site](https://snapshots.mitmproxy.org/4.0.3/mitmproxy-4.0.3-osx.tar.gz), unpack and move/link binaries to `/usr/local/bin`.
 
 Instead, install whistle which is **recommended**.
+
+### charles
+Buy and install [charles](https://www.charlesproxy.com/).
 
 ## Installation
 Download latest release:

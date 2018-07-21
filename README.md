@@ -240,5 +240,4 @@ pyinstaller v2net.spec
 
 ## Todos
 - [ ] Performance tuning
-- [ ] Version check
 - [ ] Proxy group with connection test

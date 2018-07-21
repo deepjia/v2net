@@ -1,7 +1,7 @@
 # -*- mode: python -*-
 
 block_cipher = None
-VERSION = '0.4.7'
+VERSION = '0.4.8'
 
 a = Analysis(['v2net.py'],
              pathex=['/Users/Jia/Dropbox/Projects/v2net'],

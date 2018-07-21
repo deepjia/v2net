@@ -7,6 +7,7 @@ import subprocess
 import json
 import pyperclip
 import logging
+from logging.handlers import RotatingFileHandler
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QLabel
@@ -14,61 +15,67 @@ from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
 
-VERSION = '0.4.7'
+VERSION = '0.4.8'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 
 if getattr(sys, 'frozen', False):
     # PyInstaller Bundle
-    base_path = sys._MEIPASS
-    os.chdir(base_path)
+    BASE_PATH = sys._MEIPASS
+    os.chdir(BASE_PATH)
     os.environ['PATH']='/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
 else:
     # Normal Python Environment
-    base_path = os.path.dirname(os.path.realpath(__file__))
-ext_path = os.path.join(base_path, 'extension')
-log_path = os.path.join(os.environ.get('HOME'), 'Library', 'Logs', 'V2Net')
+    BASE_PATH = os.path.dirname(os.path.realpath(__file__))
+EXT_PATH = os.path.join(BASE_PATH, 'extension')
+LOG_PATH = os.path.join(os.environ.get('HOME'), 'Library', 'Logs', 'V2Net')
+LOG_PATH_EXT = os.path.join(LOG_PATH, 'extension_log')
 # Built-in examples
-profile_path_example = os.path.join(base_path, 'profile')
-setting_example = os.path.join(base_path, 'setting.ini')
+PROFILE_PATH_EXAMPLE = os.path.join(BASE_PATH, 'profile')
+SETTING_EXAMPLE = os.path.join(BASE_PATH, 'setting.ini')
 # Application Support Folder
-application_support_path = os.path.join(os.environ.get('HOME'), 'Library', 'Application Support', 'V2Net')
-if not os.path.exists(application_support_path):
-    os.mkdir(application_support_path)
-setting_file = os.path.join(application_support_path, 'setting.ini')
+AS_PATH = os.path.join(os.environ.get('HOME'), 'Library', 'Application Support', 'V2Net')
+if not os.path.exists(AS_PATH):
+    os.mkdir(AS_PATH)
+SETTING_FILE = os.path.join(AS_PATH, 'setting.ini')
 # Copy example setting and confirm profile path
-if not os.path.exists(setting_file):
-    shutil.copy(setting_example, setting_file)
-setting = Config(setting_file)
-custom_path = setting.get('Global', 'CustomPath', application_support_path)
-# Use Application Support Folder as Default
-if not os.path.exists(custom_path):
-    custom_path = application_support_path
-profile_path = os.path.join(custom_path, 'profile')
-profile_file = os.path.join(profile_path, 'profile.ini')
+if not os.path.exists(SETTING_FILE):
+    shutil.copy(SETTING_EXAMPLE, SETTING_FILE)
+SETTING = Config(SETTING_FILE)
+CUSTOM_PATH = SETTING.get('Global', 'CustomPath', AS_PATH)
+# Use Application Support Folder as Default STORAGE_PATH
+STORAGE_PATH = CUSTOM_PATH if os.path.exists(CUSTOM_PATH) else AS_PATH
+PROFILE_PATH = os.path.join(STORAGE_PATH, 'profile')
+PROFILE_FILE = os.path.join(PROFILE_PATH, 'profile.ini')
 # Copy example profiles
-if not os.path.exists(profile_path):
-    shutil.copytree(profile_path_example, profile_path)
-profile = Config(profile_file)
-# General profile
-skip_proxy = [x.strip() for x in profile.get('General', 'skip-proxy').split(',')]
-http_port = ''
-socks5_port = ''
-user_port = profile.get('General', 'port', profile.get('General', 'Port', '8014'))
-user_port_proxy = profile.get('General', 'port-proxy', profile.get('General', 'InnerPortProxy', '8114'))
-user_port_bypass = profile.get('General', 'port-bypass', profile.get('General', 'InnerPortBypass', '8214'))
-selected = {x: profile.get('General', x) for x in ('proxy', 'bypass', 'capture')}
-current = {x: None for x in ('proxy', 'bypass', 'capture')}
-system = True if profile.get('General', 'system', 'false').strip().lower() == 'true' else False
-mutex = QMutex()
-shutil.rmtree(log_path, True)
-os.mkdir(log_path)
+if not os.path.exists(PROFILE_PATH):
+    shutil.copytree(PROFILE_PATH_EXAMPLE, PROFILE_PATH)
+if not os.path.exists(LOG_PATH):
+    os.mkdir(LOG_PATH)
+shutil.rmtree(LOG_PATH_EXT, True)
+os.mkdir(LOG_PATH_EXT)
+MUTEX = QMutex()
+
+# Profile
+PROFILE = Config(PROFILE_FILE)
+SKIP_PROXY = [x.strip() for x in PROFILE.get('General', 'skip-proxy').split(',')]
+PORT = PROFILE.get('General', 'port', PROFILE.get('General', 'Port', '8014'))
+PORT_PROXY = PROFILE.get('General', 'port-proxy', PROFILE.get('General', 'InnerPortProxy', '8114'))
+PORT_BYPASS = PROFILE.get('General', 'port-bypass', PROFILE.get('General', 'InnerPortBypass', '8214'))
 logging.basicConfig(
-    level=getattr(logging, profile.get('General', 'loglevel', 'INFO').upper()),
-    handlers=(logging.FileHandler(
-        os.path.join(log_path, 'V2Net.log'), encoding='UTF-8'),),
+    level=getattr(logging, PROFILE.get('General', 'loglevel', 'INFO').upper()),
+    handlers=(RotatingFileHandler(
+        os.path.join(LOG_PATH, 'V2Net.log'), maxBytes=1024*1024, backupCount=5, encoding='UTF-8'),
+    ),
     format='%(asctime)s %(levelname)s: %(message)s'
 )
+
+# Profile Vars
+http_port = ''
+socks5_port = ''
+selected = {x: PROFILE.get('General', x) for x in ('proxy', 'bypass', 'capture')}
+current = {x: None for x in ('proxy', 'bypass', 'capture')}
+system = True if PROFILE.get('General', 'system', 'false').strip().lower() == 'true' else False
 
 
 class Extension(QThread):
@@ -102,14 +109,14 @@ class Extension(QThread):
             # update current
             current[self.role] = self
             self.menus_to_enable[0].setText(self.role.title() + ": " + self.local_port)
-            if self.local_port == user_port:
+            if self.local_port == PORT:
                 global http_port, socks5_port
                 http_port = self.local_port if self.http else ''
                 socks5_port = self.local_port if self.socks5 else ''
             # set proxy
             if system:
                 setproxy()
-            profile.write('General', self.role, self.name)
+            PROFILE.write('General', self.role, self.name)
             # 设置菜单选中状态
             self.QAction.setChecked(True)
             self.menus_to_enable[0].setChecked(True)
@@ -149,7 +156,7 @@ class Extension(QThread):
                 break
 
     def run(self):
-        mutex.lock()
+        MUTEX.lock()
         logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
         # 关闭已启动的同类组件
         if self.last:
@@ -159,7 +166,7 @@ class Extension(QThread):
             self.last = None
         # 读取配置文件，获得 json 字符串
         try:
-            ext_dir = os.path.join(ext_path, self.ext_name)
+            ext_dir = os.path.join(EXT_PATH, self.ext_name)
             with open(os.path.join(ext_dir, 'extension.json'), 'r') as f:
                 json_str = f.read()
                 json_temp = json.loads(json_str)
@@ -171,17 +178,17 @@ class Extension(QThread):
             # 使用关键数据，渲染 json 字符串，然后重新提取 json 词典
             self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
             self.jinja_dict['ExtensionDir'] = ext_dir
-            self.jinja_dict['ProfileDir'] = profile_path
+            self.jinja_dict['ProfileDir'] = PROFILE_PATH
             self.jinja_dict['HomeDir'] = os.environ.get('HOME')
             # 确定 Local Port
-            self.local_port = user_port
+            self.local_port = PORT
             begin = False
             for role in ('proxy', 'bypass', 'capture'):
                 if role == self.role:
                     begin = True
                     continue
                 if begin and current[role]:
-                    self.local_port = user_port_proxy if self.role == 'proxy' else user_port_bypass
+                    self.local_port = PORT_PROXY if self.role == 'proxy' else PORT_BYPASS
                     break
 
             # 确定 Server Port 和 Protocol
@@ -205,13 +212,13 @@ class Extension(QThread):
                                 self.jinja_dict['ServerProtocolSocks5'] = current[role].socks5
                                 self.jinja_dict['ServerProtocolHttp'] = current[role].http
                                 self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
-                            server_port = user_port_proxy
+                            server_port = PORT_PROXY
                         else:
                             if not self.jinja_dict.get('ServerProtocol'):
                                 self.jinja_dict['ServerProtocolSocks5'] = current[role].socks5
                                 self.jinja_dict['ServerProtocolHttp'] = current[role].http
                                 self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
-                            server_port = user_port_bypass
+                            server_port = PORT_BYPASS
                         self.jinja_dict['ServerPort'] = server_port
 
             logging.info(
@@ -237,7 +244,7 @@ class Extension(QThread):
                         f.write(content)
                         f.truncate()
             # 启动子进程
-            self.ext_log = open(os.path.join(log_path, self.name + '.log'), 'a', encoding='UTF-8')
+            self.ext_log = open(os.path.join(LOG_PATH_EXT, self.name + '.log'), 'a', encoding='UTF-8')
             if pre:
                 subprocess.run(pre, shell=True, check=True,
                                stdout=self.ext_log, stderr=subprocess.STDOUT)
@@ -252,7 +259,7 @@ class Extension(QThread):
         finally:
             logging.debug(
                 '[' + self.ext_name + ']' + self.name + " release Lock.")
-            mutex.unlock()
+            MUTEX.unlock()
 
     def stop(self):
         logging.info('[' + self.ext_name + ']' + self.name + " is going to stop. pid=" + str(
@@ -304,7 +311,7 @@ class Proxy(Extension):
 
     def disable(self, *args):
         super().disable(*args)
-        profile.write('General', 'proxy', '')
+        PROFILE.write('General', 'proxy', '')
 
 
 class Bypass(Extension):
@@ -322,7 +329,7 @@ class Bypass(Extension):
 
     def disable(self, *args):
         super().disable(*args)
-        profile.write('General', 'bypass', '')
+        PROFILE.write('General', 'bypass', '')
 
 
 class Capture(Extension):
@@ -346,7 +353,7 @@ class Capture(Extension):
 
     def disable(self, *args):
         super().disable(*args)
-        profile.write('General', 'capture', '')
+        PROFILE.write('General', 'capture', '')
 
 
 def quitapp(code=0):
@@ -368,18 +375,18 @@ def setproxy_menu(qaction):
     if qaction.isChecked():
         system = True
         setproxy()
-        profile.write('General', 'system', 'true')
+        PROFILE.write('General', 'system', 'true')
     else:
         system = False
         setproxy()
-        profile.write('General', 'system', 'false')
+        PROFILE.write('General', 'system', 'false')
 
 
 def setproxy():
     if system:
         logging.info('Setting proxy bypass...')
-        subprocess.Popen(['bash', 'setproxy.sh', *skip_proxy])
-        subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *skip_proxy])
+        subprocess.Popen(['bash', 'setproxy.sh', *SKIP_PROXY])
+        subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *SKIP_PROXY])
     if system and http_port:
         logging.info('Setting http proxy...')
         subprocess.Popen(['bash', 'setproxy.sh', 'httpon', http_port])
@@ -425,7 +432,7 @@ def main():
         menu = QMenu()
         # Add Tray
         tray = QSystemTrayIcon()
-        tray.setIcon(QIcon(os.path.join(base_path, "icon.png")))
+        tray.setIcon(QIcon(os.path.join(BASE_PATH, "icon.png")))
         tray.setVisible(True)
         tray.setContextMenu(menu)
         # Proxy
@@ -437,7 +444,7 @@ def main():
         menu.addAction(m_proxy)
         proxy_dict = {}
         proxy_group = QActionGroup(menu)
-        for proxy in profile.get_items('Proxy'):
+        for proxy in PROFILE.get_items('Proxy'):
             proxyname = proxy[0]
             proxy_dict[proxyname] = Proxy(proxy, m_proxy)
             proxy_group.addAction(proxy_dict[proxyname].QAction)
@@ -453,7 +460,7 @@ def main():
         menu.addAction(m_bypass)
         bypass_dict = {}
         bypass_group = QActionGroup(menu)
-        for bypass in profile.get_items('Bypass'):
+        for bypass in PROFILE.get_items('Bypass'):
             bypassname = bypass[0]
             bypass_dict[bypassname] = Bypass(bypass, m_bypass)
             bypass_group.addAction(bypass_dict[bypassname].QAction)
@@ -472,7 +479,7 @@ def main():
         menu.addAction(m_capture)
         capture_dict = {}
         capture_group = QActionGroup(menu)
-        for capture in profile.get_items('Capture'):
+        for capture in PROFILE.get_items('Capture'):
             capturename = capture[0]
             capture_dict[capturename] = Capture(capture, m_capture, m_dashboard)
             capture_group.addAction(capture_dict[capturename].QAction)
@@ -482,19 +489,19 @@ def main():
         # Common
         m_setting = QAction("Open Setting File")
         m_setting.setShortcut('Ctrl+O')
-        m_setting.triggered.connect(lambda: subprocess.run(["open", setting_file]))
+        m_setting.triggered.connect(lambda: subprocess.run(["open", SETTING_FILE]))
         m_profile = QAction("Open Profile Folder")
         m_profile.setShortcut('Ctrl+P')
-        m_profile.triggered.connect(lambda: subprocess.run(["open", profile_path]))
+        m_profile.triggered.connect(lambda: subprocess.run(["open", PROFILE_PATH]))
         m_log = QAction("Open Log Folder")
         m_log.setShortcut('Ctrl+L')
-        m_log.triggered.connect(lambda: subprocess.run(["open", log_path]))
+        m_log.triggered.connect(lambda: subprocess.run(["open", LOG_PATH]))
         m_extension = QAction("Open Extension Folder")
         m_extension.setShortcut('Ctrl+E')
-        m_extension.triggered.connect(lambda: subprocess.run(["open", ext_path]))
+        m_extension.triggered.connect(lambda: subprocess.run(["open", EXT_PATH]))
         m_copy_shell = QAction("Copy Shell Command")
         m_copy_shell.setShortcut('Ctrl+S')
-        m_set_system = QAction("As System Proxy: " + user_port)
+        m_set_system = QAction("As System Proxy: " + PORT)
         m_set_system.setShortcut('Ctrl+A')
         m_set_system.triggered.connect(lambda: setproxy_menu(m_set_system))
         m_copy_shell.triggered.connect(copy_shell)

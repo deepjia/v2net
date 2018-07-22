@@ -42,7 +42,7 @@ SETTING_FILE = os.path.join(AS_PATH, 'setting.ini')
 if not os.path.exists(SETTING_FILE):
     shutil.copy(SETTING_EXAMPLE, SETTING_FILE)
 SETTING = Config(SETTING_FILE)
-CUSTOM_PATH = SETTING.get('Global', 'CustomPath', AS_PATH)
+CUSTOM_PATH = SETTING.get('Global', 'custom-path', SETTING.get('Global', 'CustomPath', AS_PATH))
 # Use Application Support Folder as Default STORAGE_PATH
 STORAGE_PATH = CUSTOM_PATH if os.path.exists(CUSTOM_PATH) else AS_PATH
 PROFILE_PATH = os.path.join(STORAGE_PATH, 'profile')

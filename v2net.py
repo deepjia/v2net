@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemT
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
-VERSION = '0.5.0'
+VERSION = '0.5.1'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 if getattr(sys, 'frozen', False):

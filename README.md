@@ -212,13 +212,13 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
    ```json
    {
      "bin": "{{ ExtensionDir }}/bin/mybinary",
-     "args": "-p {{ ExtensionPort }} -c {{ ExtensionDir }}/myconfig.ini",
+     "args": "-p {{ ExtensionPort }} -c {{ TempDir }}/myconfig.ini",
      "url": "http://127.0.0.1:{{ ExtensionPort }}",
      "exitargs": "",
      "keys": ["ServerProtocol", "ServerAddress", "SeverPort", "ServerPassword"],
      "http": false,
      "socks5": true,
-     "render": {"{{ ExtensionDir }}/mytemplate.jinja": "{{ ExtensionDir }}/myconfig.ini"},
+     "render": {"{{ ExtensionDir }}/mytemplate.jinja": "{{ TempDir }}/myconfig.ini"},
      "default": {"ServerAddress":"example.com"}
    }
    ```
@@ -228,6 +228,7 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
    Specially:
 
       - {{ *ExtensionPort* }} will always be rendered as the proper value depending on your settings in `profile.ini`
+      - {{ *ExtensionDir* }} and {{ *TempDir* }} are reserved.
       - If an extension is running as a secondary proxy, {{ *ServerPort* }} and {{ *ServerProtocol* }} will be automatically rendered as `http` or `socks5` when left blank.
 
 

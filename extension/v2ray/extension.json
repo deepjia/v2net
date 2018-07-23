@@ -1,11 +1,11 @@
 {
   "bin": "v2ray",
-  "args": "-config {{ ExtensionDir }}/config.json",
+  "args": "-config {{ TempDir }}/v2ray.json",
   "keys": ["ServerAddress", "ServerPort", "WSPath", "ServicePassword"],
   "exitargs":"",
   "http": false,
   "socks5": true,
-  "render": {"{{ ExtensionDir }}/template.jinja": "{{ ExtensionDir }}/config.json"},
+  "render": {"{{ ExtensionDir }}/template.jinja": "{{ TempDir }}/v2ray.json"},
   "default": {
     "ServerAddress": "127.0.0.1",
     "ServerPort": "443",

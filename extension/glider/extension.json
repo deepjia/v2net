@@ -1,11 +1,11 @@
 {
   "bin": "{{ ExtensionDir }}/bin/glider",
-  "args": "-config {{ ExtensionDir }}/glider.conf -rulefile {{ ProfileDir }}/{{ Bypass }}",
+  "args": "-config {{ TempDir }}/glider.conf -rulefile {{ ProfileDir }}/{{ Bypass }}",
   "keys": ["ServerProtocol","ServerAddress", "ServerPort", "Bypass"],
   "exitargs": "",
   "http": true,
   "socks5": true,
-  "render": {"{{ ExtensionDir }}/template.jinja": "{{ ExtensionDir }}/glider.conf"},
+  "render": {"{{ ExtensionDir }}/template.jinja": "{{ TempDir }}/glider.conf"},
   "default": {
     "ServerAddress": "127.0.0.1"
   }

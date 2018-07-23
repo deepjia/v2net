@@ -37,7 +37,10 @@ MUTEX = QMutex()
 
 # Create and read setting
 SETTING_PATH = os.path.join(os.environ.get('HOME'), 'Library', 'Application Support', 'V2Net')
+TEMP_PATH = os.path.join(SETTING_PATH, 'temp')
 os.mkdir(SETTING_PATH) if not os.path.exists(SETTING_PATH) else None
+shutil.rmtree(TEMP_PATH, True)
+os.mkdir(TEMP_PATH)
 SETTING_FILE = os.path.join(SETTING_PATH, 'setting.ini')
 SETTING_EXAMPLE = os.path.join(BASE_PATH, 'setting.ini')
 shutil.copy(SETTING_EXAMPLE, SETTING_FILE) if not os.path.exists(SETTING_FILE) else None
@@ -174,6 +177,9 @@ class Extension(QThread):
             self.jinja_dict['ExtensionDir'] = ext_dir
             self.jinja_dict['ProfileDir'] = PROFILE_PATH
             self.jinja_dict['HomeDir'] = os.environ.get('HOME')
+            temp_dir = os.path.join(TEMP_PATH, self.name)
+            self.jinja_dict['TempDir'] = temp_dir
+            os.mkdir(temp_dir) if not os.path.exists(temp_dir) else None
             # 确定 Local Port
             self.local_port = PORT
             begin = False
@@ -232,11 +238,8 @@ class Extension(QThread):
             for src, dist in render.items():
                 with open(src, 'r') as f:
                     content = Template(f.read()).render(**self.jinja_dict)
-                with open(dist, 'r+') as f:
-                    if content != Template(f.read()).render(**self.jinja_dict):
-                        f.seek(0)
-                        f.write(content)
-                        f.truncate()
+                with open(dist, 'w') as f:
+                    f.write(content)
             # 启动子进程
             self.ext_log = open(os.path.join(LOG_PATH_EXT, self.name + '.log'), 'a', encoding='UTF-8')
             if pre:

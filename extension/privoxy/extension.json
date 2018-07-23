@@ -1,12 +1,12 @@
 {
   "bin": "privoxy",
-  "pre": "cat {{ ProfileDir }}/{{Bypass}} >> {{ ExtensionDir }}/head.action; sed '1s/alias/{alias}/' {{ ExtensionDir }}/head.action > {{ ExtensionDir }}/user.action",
-  "args": "--no-daemon {{ ExtensionDir }}/config",
+  "pre": "cat {{ ProfileDir }}/{{Bypass}} >> {{ TempDir }}/privoxy.actionhead; sed '1s/alias/{alias}/' {{ TempDir }}/privoxy.actionhead > {{ TempDir }}/privoxy.action",
+  "args": "--no-daemon {{ TempDir }}/privoxy.config",
   "exitargs": "",
   "keys": ["Protocol", "ServerAddress", "ServerPort", "Bypass"],
   "http": true,
   "socks5": false,
-  "render": {"{{ ExtensionDir }}/config.jinja": "{{ ExtensionDir }}/config", "{{ ExtensionDir }}/actionhead.jinja":"{{ ExtensionDir }}/head.action"},
+  "render": {"{{ ExtensionDir }}/template_config.jinja": "{{ TempDir }}/privoxy.config", "{{ ExtensionDir }}/template_actionhead.jinja":"{{ TempDir }}/privoxy.actionhead"},
   "default": {
     "ServerAddress": "127.0.0.1"
   }

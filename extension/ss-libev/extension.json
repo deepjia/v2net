@@ -1,6 +1,6 @@
 {
   "bin": "ss-local",
-  "args": "-c {{ TempDir }}/ss-libev.json",
+  "args": "-c '{{ TempDir }}/ss-libev.json'",
   "keys": ["ServerAddress", "ServerPort", "EncryptionMethod", "ServicePassword", "Timeout", "TFO"],
   "exitargs": "",
   "http": false,

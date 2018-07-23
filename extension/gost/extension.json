@@ -1,6 +1,6 @@
 {
   "bin": "./extension/gost/bin/gost",
-  "args": "-L=:{{ ExtensionPort }}{% if ServerPort %} -F={{ ServerProtocol }}://{{ ServerAddress }}:{{ ServerPort }}{% if Bypass %}?bypass={{ ProfileDir }}/{{ Bypass }}{% endif %}{% endif %} {{ Other }}",
+  "args": "-L=:{{ ExtensionPort }}{% if ServerPort %} -F={{ ServerProtocol }}://{{ ServerAddress }}:{{ ServerPort }}{% if Bypass %}?bypass='{{ ProfileDir }}/{{ Bypass }}'{% endif %}{% endif %} {{ Other }}",
   "exitargs": "",
   "keys": ["ServerProtocol", "ServerAddress", "ServerPort", "Bypass", "Other"],
   "http": true,

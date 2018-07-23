@@ -1,8 +1,7 @@
 {
+  "pre": "cat '{{ ProfileDir }}/{{Bypass}}' >> '{{ TempDir }}/privoxy.actionhead'; sed '1s/alias/{alias}/' '{{ TempDir }}/privoxy.actionhead' > '{{ TempDir }}/privoxy.action'",
   "bin": "privoxy",
-  "pre": "cat {{ ProfileDir }}/{{Bypass}} >> {{ TempDir }}/privoxy.actionhead; sed '1s/alias/{alias}/' {{ TempDir }}/privoxy.actionhead > {{ TempDir }}/privoxy.action",
-  "args": "--no-daemon {{ TempDir }}/privoxy.config",
-  "exitargs": "",
+  "arglist": ["--no-daemon", "{{ TempDir }}/privoxy.config"],
   "keys": ["Protocol", "ServerAddress", "ServerPort", "Bypass"],
   "http": true,
   "socks5": false,

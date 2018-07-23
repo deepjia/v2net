@@ -177,7 +177,7 @@ class Extension(QThread):
             self.jinja_dict['ExtensionDir'] = ext_dir
             self.jinja_dict['ProfileDir'] = PROFILE_PATH
             self.jinja_dict['HomeDir'] = os.environ.get('HOME')
-            temp_dir = os.path.join(TEMP_PATH, self.name)
+            temp_dir = os.path.join(TEMP_PATH, self.role)
             self.jinja_dict['TempDir'] = temp_dir
             os.mkdir(temp_dir) if not os.path.exists(temp_dir) else None
             # 确定 Local Port
@@ -232,6 +232,7 @@ class Extension(QThread):
             render = json_dict['render']
             self.url = json_dict.get('url')
             args = json_dict.get('args', '')
+            # arglist = json_dict.get('arglist')
             pre = json_dict.get('pre')
             self.kill = json_dict.get('kill')
             self.exitargs = json_dict.get('exitargs')

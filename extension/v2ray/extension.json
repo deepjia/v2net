@@ -1,6 +1,6 @@
 {
   "bin": "v2ray",
-  "args": "-config {{ TempDir }}/v2ray.json",
+  "args": "-config '{{ TempDir }}/v2ray.json'",
   "keys": ["ServerAddress", "ServerPort", "WSPath", "ServicePassword"],
   "exitargs":"",
   "http": false,

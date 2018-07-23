@@ -1,6 +1,6 @@
 {
   "bin": "{{ ExtensionDir }}/bin/glider",
-  "args": "-config {{ TempDir }}/glider.conf -rulefile {{ ProfileDir }}/{{ Bypass }}",
+  "args": "-config '{{ TempDir }}/glider.conf' -rulefile '{{ ProfileDir }}/{{ Bypass }}'",
   "keys": ["ServerProtocol","ServerAddress", "ServerPort", "Bypass"],
   "exitargs": "",
   "http": true,

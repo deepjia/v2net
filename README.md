@@ -3,11 +3,10 @@
 
 **⚠️ IMPORTANT ⚠️**
 
-I changed names & prerequisites of some extensions in version 0.3.0 (alpha).
+You need to backup profiles before upgrade, if you have a version lower than 0.4.6.
 
-Please backup and review your `profile.ini` and satisfy the prerequisites before upgrading.
+Some settings had been moved from `profile.ini` to `setting.ini` since version 0.5.0 (alpha).
 
-Profiles had been moved out of the app folder since version 0.4.6 (alpha).
 
 ## Introduction
 V2Net is a network assistant tool for macOS.
@@ -110,7 +109,27 @@ Unpack and drag `V2Net.app` to `Application` folder.
 Open `Application` folder, right click on `V2Net.app`, hold `option` key, click `Open`.
 
 ## Usage
-(Optional) Click `Edit Setting File`, set `CustomPath` to store config files. In this way, your config can sync with iCloud Drive/Dropbox, etc.
+(Optional) Click `Edit Setting File`, set `custom-path` to store config files. In this way, your config can sync with iCloud Drive/Dropbox, etc.
+
+Example of `setting.ini`:
+
+```ini
+[Global]
+custom-path =
+# PATH in env
+env-path = /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+# proxy/bypass/capture: extensions selected last time, will be filled automatically
+proxy =
+bypass =
+capture =
+# system: whether V2Net is set as system proxy last time, will be filled automatically
+system = false
+# Port settings
+port = 8014
+port-proxy = 8114
+port-bypass = 8214
+
+```
 
 Click `Open Profile Folder`, and edit your profiles.
 
@@ -118,16 +137,8 @@ Example of `profile.ini`:
 
 ```ini
 [General]
+loglevel = INFO
 skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, ::ffff:0:0:0:0/1, ::ffff:128:0:0:0/1
-# proxy/bypass/capture: extensions selected last time
-proxy =
-bypass =
-capture =
-# system: whether V2Net is set as system proxy last time
-system = false
-port = 8014
-port-proxy = 8114
-port-bypass = 8214
 
 [Proxy]
 # The order of values is defined in "keys" field of extension.json in extension folders
@@ -150,7 +161,6 @@ port-bypass = 8214
 # Other extensions need prerequisites:
 🇨🇳️Eg.Proxy(ss-libev)(ss)ExampleProxy = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password
 🇨🇳Eg.Proxy(v2ray)(vmess-tls-ws)ExampleProxy = v2ray, example.org, 443, /ws, uuid
-
 
 [Bypass]
 # Same as proxy, gost and glider are preferred:

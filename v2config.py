@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-#coding=utf-8
-import os
+# coding=utf-8
 import configparser
-
 
 class Config:
     def __init__(self, file):
@@ -27,9 +25,3 @@ class Config:
         self.config.set(section, key, value)
         with open(self.file, 'w+', encoding='UTF-8') as f:
             self.config.write(f)
-
-
-base_path = os.path.dirname(os.path.realpath(__file__))
-extension_path = os.path.join(base_path, 'extension')
-profile_path = os.path.join(base_path, 'profile')
-profile = Config(os.path.join(profile_path, 'profile.ini'))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#coding=utf-8
+# coding=utf-8
 import sys
 import os
 import shutil
@@ -14,54 +14,47 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemT
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
-
-VERSION = '0.4.8'
+VERSION = '0.5.0'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
-
 if getattr(sys, 'frozen', False):
     # PyInstaller Bundle
     BASE_PATH = sys._MEIPASS
     os.chdir(BASE_PATH)
-    os.environ['PATH']='/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+    ENV_PATH = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
 else:
     # Normal Python Environment
     BASE_PATH = os.path.dirname(os.path.realpath(__file__))
+    ENV_PATH = os.environ['PATH']
+
 EXT_PATH = os.path.join(BASE_PATH, 'extension')
 LOG_PATH = os.path.join(os.environ.get('HOME'), 'Library', 'Logs', 'V2Net')
+os.mkdir(LOG_PATH) if not os.path.exists(LOG_PATH) else None
 LOG_PATH_EXT = os.path.join(LOG_PATH, 'extension_log')
-# Built-in examples
-PROFILE_PATH_EXAMPLE = os.path.join(BASE_PATH, 'profile')
-SETTING_EXAMPLE = os.path.join(BASE_PATH, 'setting.ini')
-# Application Support Folder
-AS_PATH = os.path.join(os.environ.get('HOME'), 'Library', 'Application Support', 'V2Net')
-if not os.path.exists(AS_PATH):
-    os.mkdir(AS_PATH)
-SETTING_FILE = os.path.join(AS_PATH, 'setting.ini')
-# Copy example setting and confirm profile path
-if not os.path.exists(SETTING_FILE):
-    shutil.copy(SETTING_EXAMPLE, SETTING_FILE)
-SETTING = Config(SETTING_FILE)
-CUSTOM_PATH = SETTING.get('Global', 'custom-path', SETTING.get('Global', 'CustomPath', AS_PATH))
-# Use Application Support Folder as Default STORAGE_PATH
-STORAGE_PATH = CUSTOM_PATH if os.path.exists(CUSTOM_PATH) else AS_PATH
-PROFILE_PATH = os.path.join(STORAGE_PATH, 'profile')
-PROFILE_FILE = os.path.join(PROFILE_PATH, 'profile.ini')
-# Copy example profiles
-if not os.path.exists(PROFILE_PATH):
-    shutil.copytree(PROFILE_PATH_EXAMPLE, PROFILE_PATH)
-if not os.path.exists(LOG_PATH):
-    os.mkdir(LOG_PATH)
 shutil.rmtree(LOG_PATH_EXT, True)
 os.mkdir(LOG_PATH_EXT)
 MUTEX = QMutex()
 
-# Profile
+# Create and read setting
+SETTING_PATH = os.path.join(os.environ.get('HOME'), 'Library', 'Application Support', 'V2Net')
+os.mkdir(SETTING_PATH) if not os.path.exists(SETTING_PATH) else None
+SETTING_FILE = os.path.join(SETTING_PATH, 'setting.ini')
+SETTING_EXAMPLE = os.path.join(BASE_PATH, 'setting.ini')
+shutil.copy(SETTING_EXAMPLE, SETTING_FILE) if not os.path.exists(SETTING_FILE) else None
+SETTING = Config(SETTING_FILE)
+CUSTOM_PATH = SETTING.get('Global', 'custom-path', SETTING.get('Global', 'CustomPath', SETTING_PATH))
+os.environ['PATH'] = SETTING.get('Global', 'env-path', ENV_PATH)
+PORT = SETTING.get('Global', 'port', '8014')
+PORT_PROXY = SETTING.get('Global', 'port-proxy', '8114')
+PORT_BYPASS = SETTING.get('Global', 'port-bypass', '8214')
+
+# Create and read profile
+STORAGE_PATH = CUSTOM_PATH if os.path.exists(CUSTOM_PATH) else SETTING_PATH
+PROFILE_PATH = os.path.join(STORAGE_PATH, 'profile')
+PROFILE_FILE = os.path.join(PROFILE_PATH, 'profile.ini')
+PROFILE_PATH_EXAMPLE = os.path.join(BASE_PATH, 'profile')
+shutil.copytree(PROFILE_PATH_EXAMPLE, PROFILE_PATH) if not os.path.exists(PROFILE_PATH) else None
 PROFILE = Config(PROFILE_FILE)
-SKIP_PROXY = [x.strip() for x in PROFILE.get('General', 'skip-proxy').split(',')]
-PORT = PROFILE.get('General', 'port', PROFILE.get('General', 'Port', '8014'))
-PORT_PROXY = PROFILE.get('General', 'port-proxy', PROFILE.get('General', 'InnerPortProxy', '8114'))
-PORT_BYPASS = PROFILE.get('General', 'port-bypass', PROFILE.get('General', 'InnerPortBypass', '8214'))
 logging.basicConfig(
     level=getattr(logging, PROFILE.get('General', 'loglevel', 'INFO').upper()),
     handlers=(RotatingFileHandler(
@@ -69,17 +62,18 @@ logging.basicConfig(
     ),
     format='%(asctime)s %(levelname)s: %(message)s'
 )
+SKIP_PROXY = [x.strip() for x in PROFILE.get('General', 'skip-proxy').split(',')]
 
-# Profile Vars
+# Global vars
+selected = {x: SETTING.get('Global', x) for x in ('proxy', 'bypass', 'capture')}
+system = True if SETTING.get('Global', 'system', 'false').strip().lower() == 'true' else False
 http_port = ''
 socks5_port = ''
-selected = {x: PROFILE.get('General', x) for x in ('proxy', 'bypass', 'capture')}
 current = {x: None for x in ('proxy', 'bypass', 'capture')}
-system = True if PROFILE.get('General', 'system', 'false').strip().lower() == 'true' else False
 
 
 class Extension(QThread):
-    # 定义信号
+    # define signal
     update = pyqtSignal()
 
     def __init__(self, extension, *menus_to_enable):
@@ -93,6 +87,7 @@ class Extension(QThread):
         self.url = None
         self.pre = None
         self.exitargs = None
+        self.kill = None
         self.process = None
         self.menus_to_enable = menus_to_enable
         self.ext_name, *self.values = [x.strip() for x in extension[1].split(',')]
@@ -104,7 +99,7 @@ class Extension(QThread):
         self.ext_log = None
 
     def select(self):
-        # 绑定信号的动作
+        # bind action to signal
         def update():
             # update current
             current[self.role] = self
@@ -116,8 +111,8 @@ class Extension(QThread):
             # set proxy
             if system:
                 setproxy()
-            PROFILE.write('General', self.role, self.name)
-            # 设置菜单选中状态
+            SETTING.write('Global', self.role, self.name)
+            # set menu as checked
             self.QAction.setChecked(True)
             self.menus_to_enable[0].setChecked(True)
             self.menus_to_enable[0].setDisabled(False)
@@ -128,7 +123,7 @@ class Extension(QThread):
                     menu_to_enable.setDisabled(True)
 
         self.update.connect(update)
-        # 在新线程中启动组件
+        # start extension in new thread
         self.last = current[self.role]
         current[self.role] = self
         self.start()
@@ -158,9 +153,8 @@ class Extension(QThread):
     def run(self):
         MUTEX.lock()
         logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
-        # 关闭已启动的同类组件
+        # stop extension of the same type
         if self.last:
-            #self.last.stop_and_reset()
             self.last.stop()
             self.last.reset_upstream()
             self.last = None
@@ -199,7 +193,7 @@ class Extension(QThread):
                     begin = True
                     continue
                 if begin and current[role]:
-                    logging.info('[' + self.ext_name + ']' + self.name + "Will stop pid=" + str(
+                    logging.info('[' + self.ext_name + ']' + self.name + " Will stop pid=" + str(
                         current[role].process.pid if current[role].process else None))
                     # current[role].stop_and_reset()
                     current[role].stop()
@@ -280,14 +274,10 @@ class Extension(QThread):
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " stop failed. Error: " + str(e))
         finally:
-            try:
+            if self.ext_log:
                 self.ext_log.close()
-            finally:
-                if system:
-                    setproxy()
-
-    #def stop_and_reset(self):
-        #self.stop()
+            if system:
+                setproxy()
 
     def disable(self, *menus_to_disable):
         for menu_to_disable in menus_to_disable:
@@ -296,9 +286,9 @@ class Extension(QThread):
         self.QAction.setChecked(False)
         self.stop()
         self.reset_upstream()
-        #self.stop_and_reset()
         current[self.role] = None
         self.reset_downstream()
+        SETTING.write('Global', self.role, '')
 
 
 class Proxy(Extension):
@@ -309,10 +299,6 @@ class Proxy(Extension):
         if self.name == selected['proxy']:
             self.select()
 
-    def disable(self, *args):
-        super().disable(*args)
-        PROFILE.write('General', 'proxy', '')
-
 
 class Bypass(Extension):
     def __init__(self, *args):
@@ -321,15 +307,6 @@ class Bypass(Extension):
         # 自动启动上次启动的扩展
         if self.name == selected['bypass']:
             self.select()
-
-    #def stop_and_reset(self):
-        #super().stop()
-        #if current['proxy']:
-            #current['proxy'].select()
-
-    def disable(self, *args):
-        super().disable(*args)
-        PROFILE.write('General', 'bypass', '')
 
 
 class Capture(Extension):
@@ -343,17 +320,7 @@ class Capture(Extension):
     def select(self):
         super().select()
         self.menus_to_enable[1].triggered.connect(lambda: show_dashboard(self.url))
-        #self.menus_to_enable[1].triggered.connect(
-        #    lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
-
-    #def stop_and_reset(self):
-    #    super().stop()
-    #    if current['bypass']:
-    #        current['bypass'].select()
-
-    def disable(self, *args):
-        super().disable(*args)
-        PROFILE.write('General', 'capture', '')
+        # self.menus_to_enable[1].triggered.connect(lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
 
 def quitapp(code=0):
@@ -370,16 +337,17 @@ def quitapp(code=0):
 def show_dashboard(url):
     subprocess.Popen('open -a Safari ' + url, shell=True)
 
+
 def setproxy_menu(qaction):
     global system
     if qaction.isChecked():
         system = True
         setproxy()
-        PROFILE.write('General', 'system', 'true')
+        SETTING.write('Global', 'system', 'true')
     else:
         system = False
         setproxy()
-        PROFILE.write('General', 'system', 'false')
+        SETTING.write('Global', 'system', 'false')
 
 
 def setproxy():
@@ -401,16 +369,19 @@ def setproxy():
     else:
         unset_socks5_proxy()
 
+
 def unset_http_proxy():
     logging.info('Unsetting http proxy...')
     subprocess.Popen(['bash', 'setproxy.sh', 'httpoff'])
     subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
     subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
 
+
 def unset_socks5_proxy():
     logging.info('Unsetting socks5 proxy...')
     subprocess.Popen(['bash', 'setproxy.sh', 'socks5off'])
     subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
+
 
 def copy_shell():
     cmd = []

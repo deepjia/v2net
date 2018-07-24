@@ -32,6 +32,7 @@ Forward (local proxy client/upstream proxy server):
 - SSR proxy(tcp)
 - VMess proxy(tcp)
 - TLS, use it together with above proxy protocols(tcp)
+- Websocket, use it together with above proxy protocols(tcp)
 
 DNS Forwarding Server (udp2tcp):
 - Listen on UDP and forward dns requests to remote dns server in TCP via forwarders
@@ -63,7 +64,7 @@ TODO:
 Binary: 
 - [https://github.com/nadoo/glider/releases](https://github.com/nadoo/glider/releases)
 
-Go Get (requires **Go 1.9+** ):
+Go Get (requires **Go 1.10+** ):
 ```bash
 go get -u github.com/nadoo/glider
 ```
@@ -91,7 +92,7 @@ glider -config CONFIGPATH -listen :8080 -verbose
 
 ## Usage
 ```bash
-glider v0.6.2 usage:
+glider v0.6.3 usage:
   -checkduration int
         proxy check duration(seconds) (default 30)
   -checkwebsite string
@@ -124,6 +125,8 @@ Available Schemes:
   http: http proxy
   ssr: ssr proxy
   vmess: vmess proxy
+  tls: tls transport
+  ws: websocket transport
   redir: redirect proxy. (used on linux as a transparent proxy with iptables redirect rules)
   tcptun: tcp tunnel
   udptun: udp tunnel
@@ -132,7 +135,7 @@ Available Schemes:
 
 Available schemes for different modes:
   listen: mixed ss socks5 http redir tcptun udptun uottun dnstun
-  forward: ss socks5 http ssr vmess
+  forward: ss socks5 http ssr vmess tls ws
 
 SS scheme:
   ss://method:pass@host:port
@@ -154,10 +157,25 @@ TLS scheme:
   tls://host:port[?skipVerify=true]
 
 TLS with a specified proxy protocol:
-  tls://host:port[?skipVerify=true],proxy://scheme
+  tls://host:port[?skipVerify=true],scheme://
   tls://host:port[?skipVerify=true],http://[user:pass@]
   tls://host:port[?skipVerify=true],socks5://[user:pass@]
   tls://host:port[?skipVerify=true],vmess://[security:]uuid@?alterID=num
+
+Websocket scheme:
+  ws://host:port[/path]
+
+Websocket with a specified proxy protocol:
+  ws://host:port[/path],scheme://
+  ws://host:port[/path],http://[user:pass@]
+  ws://host:port[/path],socks5://[user:pass@]
+  ws://host:port[/path],vmess://[security:]uuid@?alterID=num
+
+TLS and Websocket with a specified proxy protocol:
+  tls://host:port[?skipVerify=true],ws://[@/path],scheme://
+  tls://host:port[?skipVerify=true],ws://[@/path],http://[user:pass@]
+  tls://host:port[?skipVerify=true],ws://[@/path],socks5://[user:pass@]
+  tls://host:port[?skipVerify=true],ws://[@/path],vmess://[security:]uuid@?alterID=num
 
 Available forward strategies:
   rr: Round Robin mode
@@ -195,7 +213,10 @@ Examples:
     -listen on :1081 as a transparent redirect server, forward all requests via remote ssr server.
 
   glider -listen redir://:1081 -forward "tls://1.1.1.1:443,vmess://security:uuid@?alterID=10"
-    -listen on :1081 as a transparent redirect server, forward all requests via remote vmess server.
+    -listen on :1081 as a transparent redirect server, forward all requests via remote tls+vmess server.
+
+  glider -listen redir://:1081 -forward "ws://1.1.1.1:80,vmess://security:uuid@?alterID=10"
+    -listen on :1081 as a transparent redirect server, forward all requests via remote ws+vmess server.
 
   glider -listen tcptun://:80=2.2.2.2:80 -forward ss://method:pass@1.1.1.1:8443
     -listen on :80 and forward all requests to 2.2.2.2:80 via remote ss server.

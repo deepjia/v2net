@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # coding=utf-8
 import configparser
+import sys
+import subprocess
+from PyQt5.QtWidgets import QWidget, QMessageBox
 
 class Config:
     def __init__(self, file):
@@ -13,10 +16,20 @@ class Config:
 
         self.config = MyConfig()
         self.file = file
-        self.config.read(file, encoding='UTF-8')
+        try:
+            self.config.read(file, encoding='UTF-8')
+        except Exception as e:
+            QMessageBox.critical(QWidget(), 'Read Error', str(e))
+            subprocess.run(["open", file])
+            sys.exit(1)
 
     def get_items(self, section):
-        return self.config[section].items()
+        try:
+            return self.config[section].items()
+        except KeyError as e:
+            QMessageBox.critical(QWidget(), 'Key Error', 'Key Error: ' + str(e) + ' in file: ' + self.file)
+            subprocess.run(["open", self.file])
+            sys.exit(1)
 
     def get(self, section, key, fallback = None):
         return self.config[section].get(key, fallback)

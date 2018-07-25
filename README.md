@@ -195,9 +195,9 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
    
    *args*: Arguments for binary to start with.
 
-   *url*: Dashboard url for capture extension.
-
    *exitargs*: Arguments for binary to quit with.(If left blank, binary process  will be stopped when stopping the extension)
+
+   *url*: Dashboard url for capture extension.
 
    *keys*: Keys to render by [jinja2](http://jinja.pocoo.org), whose values are in `profile.ini`
 
@@ -212,9 +212,9 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
    ```json
    {
      "bin": "{{ ExtensionDir }}/bin/mybinary",
-     "args": "-p {{ ExtensionPort }} -c {{ TempDir }}/myconfig.ini",
-     "url": "http://127.0.0.1:{{ ExtensionPort }}",
+     "args": "-p {{ ExtensionPort }} -c '{{ TempDir }}/myconfig.ini'",
      "exitargs": "",
+     "url": "http://127.0.0.1:{{ ExtensionPort }}",
      "keys": ["ServerProtocol", "ServerAddress", "SeverPort", "ServerPassword"],
      "http": false,
      "socks5": true,

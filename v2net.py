@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemT
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
-VERSION = '0.5.1'
+VERSION = '0.5.2'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 if getattr(sys, 'frozen', False):
@@ -113,7 +113,7 @@ class Extension(QThread):
                 socks5_port = self.local_port if self.socks5 else ''
             # set proxy
             if system:
-                setproxy()
+                set_proxy()
             SETTING.write('Global', self.role, self.name)
             # set menu as checked
             self.QAction.setChecked(True)
@@ -281,7 +281,7 @@ class Extension(QThread):
             if self.ext_log:
                 self.ext_log.close()
             if system:
-                setproxy()
+                set_proxy()
 
     def disable(self, *menus_to_disable):
         for menu_to_disable in menus_to_disable:
@@ -342,19 +342,19 @@ def show_dashboard(url):
     subprocess.Popen('open -a Safari ' + url, shell=True)
 
 
-def setproxy_menu(qaction):
+def set_proxy_menu(qaction):
     global system
     if qaction.isChecked():
         system = True
-        setproxy()
+        set_proxy()
         SETTING.write('Global', 'system', 'true')
     else:
         system = False
-        setproxy()
+        set_proxy()
         SETTING.write('Global', 'system', 'false')
 
 
-def setproxy():
+def set_proxy():
     if system:
         logging.info('Setting proxy bypass...')
         subprocess.Popen(['bash', 'setproxy.sh', *SKIP_PROXY])
@@ -478,12 +478,12 @@ def main():
         m_copy_shell.setShortcut('Ctrl+S')
         m_set_system = QAction("As System Proxy: " + PORT)
         m_set_system.setShortcut('Ctrl+A')
-        m_set_system.triggered.connect(lambda: setproxy_menu(m_set_system))
+        m_set_system.triggered.connect(lambda: set_proxy_menu(m_set_system))
         m_copy_shell.triggered.connect(copy_shell)
         m_set_system.setCheckable(True)
         if system:
             m_set_system.setChecked(True)
-            setproxy()
+            set_proxy()
         menu.addSeparator()
         menu.addAction(m_set_system)
         menu.addSeparator()

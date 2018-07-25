@@ -69,7 +69,7 @@ SKIP_PROXY = [x.strip() for x in PROFILE.get('General', 'skip-proxy').split(',')
 
 # Global vars
 selected = {x: SETTING.get('Global', x) for x in ('proxy', 'bypass', 'capture')}
-system = True if SETTING.get('Global', 'system', 'false').strip().lower() == 'true' else False
+system = SETTING.get('Global', 'system', 'false').strip().lower() == 'true'
 http_port = ''
 socks5_port = ''
 current = {x: None for x in ('proxy', 'bypass', 'capture')}

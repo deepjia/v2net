@@ -19,15 +19,15 @@ class Config:
         try:
             self.config.read(file, encoding='UTF-8')
         except Exception as e:
-            QMessageBox.critical(QWidget(), 'Read Error', str(e))
+            QMessageBox.critical(QWidget(), 'Critical', repr(e))
             subprocess.run(["open", file])
             sys.exit(1)
 
     def get_items(self, section):
         try:
             return self.config[section].items()
-        except KeyError as e:
-            QMessageBox.critical(QWidget(), 'Key Error', 'Key Error: ' + str(e) + ' in file: ' + self.file)
+        except Exception as e:
+            QMessageBox.critical(QWidget(), 'Critical', repr(e) + ' in file: ' + self.file)
             subprocess.run(["open", self.file])
             sys.exit(1)
 

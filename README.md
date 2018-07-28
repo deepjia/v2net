@@ -223,7 +223,7 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
    }
    ```
 
-   [jinja2](http://jinja.pocoo.org) is used as render engine, which render {{ *key* }} as *values* from the `profile.ini` as well as from *default* values, which also supports logic causes like {{*% if  %*}} {{*% endif %*}}.
+   [jinja2](http://jinja.pocoo.org) is used as render engine, which render {{ *key* }} as *values* from the `profile.ini` as well as from *default* values, which also supports logic causes like {*% if  %*} {*% endif %*}.
 
    Specially:
 

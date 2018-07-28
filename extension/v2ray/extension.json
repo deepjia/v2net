@@ -1,7 +1,7 @@
 {
   "bin": "v2ray",
   "args": "-config '{{ TempDir }}/v2ray.json'",
-  "keys": ["ServerAddress", "ServerPort", "WSPath", "ServicePassword"],
+  "keys": ["ServerAddress", "ServerPort", "WSPath", "ServiceID", "AlterID"],
   "exitargs":"",
   "http": false,
   "socks5": true,
@@ -10,7 +10,6 @@
     "ServerAddress": "127.0.0.1",
     "ServerPort": "443",
     "WSPath": "/ws",
-    "Timeout": "60",
-    "TFO": "true"
+    "AlterID": "64"
   }
 }

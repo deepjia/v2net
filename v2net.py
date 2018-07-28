@@ -327,7 +327,7 @@ class Capture(Extension):
         # self.menus_to_enable[1].triggered.connect(lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
 
-def quitapp(code=0):
+def quit_app(code=0):
     logging.info("Quiting App...")
     for ins in filter(None, current.values()):
         ins.stop()
@@ -342,9 +342,9 @@ def show_dashboard(url):
     subprocess.Popen('open -a Safari ' + url, shell=True)
 
 
-def set_proxy_menu(qaction):
+def set_proxy_menu(q_action):
     global system
-    if qaction.isChecked():
+    if q_action.isChecked():
         system = True
         set_proxy()
         SETTING.write('Global', 'system', 'true')
@@ -420,10 +420,10 @@ def main():
         proxy_dict = {}
         proxy_group = QActionGroup(menu)
         for proxy in PROFILE.get_items('Proxy'):
-            proxyname = proxy[0]
-            proxy_dict[proxyname] = Proxy(proxy, m_proxy)
-            proxy_group.addAction(proxy_dict[proxyname].QAction)
-            menu.addAction(proxy_dict[proxyname].QAction)
+            proxy_name = proxy[0]
+            proxy_dict[proxy_name] = Proxy(proxy, m_proxy)
+            proxy_group.addAction(proxy_dict[proxy_name].QAction)
+            menu.addAction(proxy_dict[proxy_name].QAction)
 
         # Bypass
         menu.addSeparator()
@@ -436,10 +436,10 @@ def main():
         bypass_dict = {}
         bypass_group = QActionGroup(menu)
         for bypass in PROFILE.get_items('Bypass'):
-            bypassname = bypass[0]
-            bypass_dict[bypassname] = Bypass(bypass, m_bypass)
-            bypass_group.addAction(bypass_dict[bypassname].QAction)
-            menu.addAction(bypass_dict[bypassname].QAction)
+            bypass_name = bypass[0]
+            bypass_dict[bypass_name] = Bypass(bypass, m_bypass)
+            bypass_group.addAction(bypass_dict[bypass_name].QAction)
+            menu.addAction(bypass_dict[bypass_name].QAction)
 
         # Capture
         menu.addSeparator()
@@ -455,10 +455,10 @@ def main():
         capture_dict = {}
         capture_group = QActionGroup(menu)
         for capture in PROFILE.get_items('Capture'):
-            capturename = capture[0]
-            capture_dict[capturename] = Capture(capture, m_capture, m_dashboard)
-            capture_group.addAction(capture_dict[capturename].QAction)
-            menu.addAction(capture_dict[capturename].QAction)
+            capture_name = capture[0]
+            capture_dict[capture_name] = Capture(capture, m_capture, m_dashboard)
+            capture_group.addAction(capture_dict[capture_name].QAction)
+            menu.addAction(capture_dict[capture_name].QAction)
         menu.addAction(m_dashboard)
 
         # Common
@@ -504,7 +504,7 @@ def main():
         # sys.exit(app.exec_())
         exitcode = APP.exec_()
     finally:
-        quitapp(exitcode)
+        quit_app(exitcode)
 
 
 if __name__ == '__main__':

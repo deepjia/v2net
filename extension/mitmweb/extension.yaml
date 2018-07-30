@@ -1,0 +1,9 @@
+bin: "mitmweb"
+args: "-p {{ ExtensionPort }} --no-web-open-browser --web-port {{ WebPort }}{% if ServerProtocolHttp %} --mode upstream:http://127.0.0.1:{{ ServerPort }}{% endif %}"
+url: "http://127.0.0.1:{{ WebPort }}"
+keys:
+  - "WebPort"
+http: true
+socks5: false
+default:
+  WebPort: "8081"

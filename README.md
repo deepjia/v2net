@@ -187,7 +187,7 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
 
 2. Enter/Create specific `Extension Directroy`
 
-3. Modify/Create `extension.json`
+3. Modify/Create `extension.yaml` (`extension.json` is okay too.)
 
    *bin:* Main binary of extensions.
 
@@ -209,18 +209,23 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
 
    *default*: Default vaules to render.
 
-   ```json
-   {
-     "bin": "{{ ExtensionDir }}/bin/mybinary",
-     "args": "-p {{ ExtensionPort }} -c '{{ TempDir }}/myconfig.ini'",
-     "exitargs": "",
-     "url": "http://127.0.0.1:{{ ExtensionPort }}",
-     "keys": ["ServerProtocol", "ServerAddress", "SeverPort", "ServerPassword"],
-     "http": false,
-     "socks5": true,
-     "render": {"{{ ExtensionDir }}/mytemplate.jinja": "{{ TempDir }}/myconfig.ini"},
-     "default": {"ServerAddress":"example.com"}
-   }
+   ```yaml
+   # json is also supported
+   bin: "{{ ExtensionDir }}/bin/mybinary"
+   args: "-p {{ ExtensionPort }} -c '{{ TempDir }}/myconfig.ini'"
+   exitargs: ""
+   url: "http://127.0.0.1:{{ ExtensionPort }}"
+   keys:
+     - "ServerProtocol"
+     - "ServerAddress"
+     - "SeverPort"
+     - "ServerPassword"
+   http: false
+   socks5: true
+   render:
+     "{{ ExtensionDir }}/mytemplate.jinja": "{{ TempDir }}/myconfig.ini"
+   default:
+     ServerAddress: "example.com"
    ```
 
    [jinja2](http://jinja.pocoo.org) is used as render engine, which render {{ *key* }} as *values* from the `profile.ini` as well as from *default* values, which also supports logic causes like {*% if  %*} {*% endif %*}.

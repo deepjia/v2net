@@ -1,0 +1,12 @@
+bin: "{{ ExtensionDir }}/bin/gost"
+args: "-L=:{{ ExtensionPort }}{% if ServerPort %} -F={{ ServerProtocol }}://{{ ServerAddress }}:{{ ServerPort }}{% if Bypass %}?bypass='{{ ProfileDir }}/{{ Bypass }}'{% endif %}{% endif %} {{ Other }}"
+keys:
+  - "ServerProtocol"
+  - "ServerAddress"
+  - "ServerPort"
+  - "Bypass"
+  - "Other"
+http: true
+socks5: true
+default:
+  ServerAddress: "127.0.0.1"

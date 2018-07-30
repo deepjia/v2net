@@ -1,0 +1,12 @@
+pre: "{{ PreCmd }}"
+bin: "{{ Binary }}"
+args: "{{ Args1 }}{{ ExtensionPort }}{{ Args2 }}"
+exitargs: "{{ExitArgs}}"
+keys:
+  - "Binary"
+  - "Args1"
+  - "Args2"
+  - "PreCmd"
+  - "ExitArgs"
+http: true
+socks5: true

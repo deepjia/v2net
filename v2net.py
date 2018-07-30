@@ -4,17 +4,17 @@ import sys
 import os
 import shutil
 import subprocess
-import json
+import yaml
 import pyperclip
 import logging
 from logging.handlers import RotatingFileHandler
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QMessageBox
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
-VERSION = '0.5.2'
+VERSION = '0.5.3'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 if getattr(sys, 'frozen', False):
@@ -78,6 +78,7 @@ current = {x: None for x in ('proxy', 'bypass', 'capture')}
 class Extension(QThread):
     # define signal
     update = pyqtSignal()
+    error = pyqtSignal(str)
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -125,7 +126,11 @@ class Extension(QThread):
                 else:
                     menu_to_enable.setDisabled(True)
 
+        def error(msg):
+            QMessageBox.critical(QWidget(), 'Critical', msg)
+
         self.update.connect(update)
+        self.error.connect(error)
         # start extension in new thread
         self.last = current[self.role]
         current[self.role] = self
@@ -161,18 +166,21 @@ class Extension(QThread):
             self.last.stop()
             self.last.reset_upstream()
             self.last = None
-        # 读取配置文件，获得 json 字符串
+        # 读取配置文件，获得 yaml 字符串
         try:
             ext_dir = os.path.join(EXT_PATH, self.ext_name)
-            with open(os.path.join(ext_dir, 'extension.json'), 'r') as f:
-                json_str = f.read()
-                json_temp = json.loads(json_str)
-            # 从临时的 json 词典中提取关键数据
-            default = json_temp['default']
-            keys = json_temp['keys']
-            self.http = json_temp['http']
-            self.socks5 = json_temp['socks5']
-            # 使用关键数据，渲染 json 字符串，然后重新提取 json 词典
+            ext_file = os.path.join(ext_dir, 'extension.yaml')
+            if not os.path.exists(ext_file):
+                ext_file = os.path.join(ext_dir, 'extension.yaml')
+            with open(ext_file, 'r') as f:
+                yaml_str = f.read()
+                param_temp = yaml.load(yaml_str)
+            # 从临时的 yaml 词典中提取关键数据
+            default = param_temp.get('default', dict())
+            keys = param_temp.get('keys', list())
+            self.http = param_temp.get('http', False)
+            self.socks5 = param_temp.get('socks5', False)
+            # 使用关键数据，渲染 yaml 字符串，然后重新提取 yaml 词典
             self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
             self.jinja_dict['ExtensionDir'] = ext_dir
             self.jinja_dict['ProfileDir'] = PROFILE_PATH
@@ -227,15 +235,15 @@ class Extension(QThread):
                 '[' + self.ext_name + ']' + self.name + " Server Prot" + str(server_port))
             # jinja2 渲染参数
             self.jinja_dict['ExtensionPort'] = self.local_port
-            json_dict = json.loads(Template(json_str).render(**self.jinja_dict))
-            self.bin = json_dict['bin']
-            render = json_dict['render']
-            self.url = json_dict.get('url')
-            args = json_dict.get('args', '')
-            # arglist = json_dict.get('arglist')
-            pre = json_dict.get('pre')
-            self.kill = json_dict.get('kill')
-            self.exitargs = json_dict.get('exitargs')
+            param = yaml.load(Template(yaml_str).render(**self.jinja_dict))
+            self.bin = param['bin']
+            render = param.get('render', dict())
+            self.url = param.get('url')
+            args = param.get('args', '')
+            # arglist = param.get('arglist')
+            pre = param.get('pre')
+            self.kill = param.get('kill')
+            self.exitargs = param.get('exitargs')
             for src, dist in render.items():
                 with open(src, 'r') as f:
                     content = Template(f.read()).render(**self.jinja_dict)
@@ -254,6 +262,7 @@ class Extension(QThread):
         except Exception as e:
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " start failed. Error: " + str(e))
+            self.error.emit(repr(e))
         finally:
             logging.debug(
                 '[' + self.ext_name + ']' + self.name + " release Lock.")

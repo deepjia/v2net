@@ -8,4 +8,5 @@ modulegraph==0.16
 pefile==2017.11.5
 pyperclip==1.6.2
 PyQt5==5.10.1
+PyYAML==3.13
 sip==4.19.8

@@ -1,4 +1,5 @@
 ip=127.0.0.1
+ip=59.37.96.220
 cidr=172.10.0.0/16
 domain=localhost
 domain=example.com

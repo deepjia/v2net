@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemT
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
-VERSION = '0.5.4'
+VERSION = '0.6.0'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 if getattr(sys, 'frozen', False):
@@ -35,6 +35,7 @@ LOG_PATH_EXT = os.path.join(LOG_PATH, 'extension_log')
 shutil.rmtree(LOG_PATH_EXT, True)
 os.mkdir(LOG_PATH_EXT)
 MUTEX = QMutex()
+LOCK = threading.Lock()
 
 # Create and read setting
 SETTING_PATH = os.path.join(os.environ.get('HOME'), 'Library', 'Application Support', 'V2Net')
@@ -81,7 +82,7 @@ class Extension(QThread):
     update = pyqtSignal()
     critical = pyqtSignal(str)
 
-    def __init__(self, extension, *menus_to_enable):
+    def __init__(self, extension, *menus):
         super().__init__()
         self.role = None
         self.jinja_dict = None
@@ -94,52 +95,64 @@ class Extension(QThread):
         self.exitargs = None
         self.kill = None
         self.process = None
-        self.menus_to_enable = menus_to_enable
+        self.menus = menus
         self.ext_name, *self.values = [x.strip() for x in extension[1].split(',')]
         self.name = extension[0]
         self.QAction = QAction(self.name)
         self.QAction.setCheckable(True)
-        self.QAction.triggered.connect(self.manual_select)
+        self.QAction.triggered.connect(lambda :self.select(manual=True))
         self.last = None
         self.ext_log = None
+        self.msg = None
 
-    def select(self):
+    def select(self, manual=False):
         # bind action to signal
         def update():
-            # update current
-            current[self.role] = self
-            self.menus_to_enable[0].setText(self.role.title() + ": " + self.local_port)
-            if self.local_port == PORT:
-                global http_port, socks5_port
-                http_port = self.local_port if self.http else ''
-                socks5_port = self.local_port if self.socks5 else ''
-            # set proxy
-            if system:
-                set_proxy()
-            SETTING.write('Global', self.role, self.name)
-            # set menu as checked
-            self.QAction.setChecked(True)
-            self.menus_to_enable[0].setChecked(True)
-            self.menus_to_enable[0].setDisabled(False)
-            for menu_to_enable in self.menus_to_enable[1:]:
-                if self.url:
-                    menu_to_enable.setDisabled(False)
-                else:
-                    menu_to_enable.setDisabled(True)
+            try:
+                # update current
+                current[self.role] = self
+                self.menus[0].setText(self.role.title() + ": " + self.local_port)
+                if self.local_port == PORT:
+                    global http_port, socks5_port
+                    http_port = self.local_port if self.http else ''
+                    socks5_port = self.local_port if self.socks5 else ''
+                # set proxy
+                if system and self.local_port == PORT:
+                    # set_proxy()
+                    logging.debug("Update: " + self.name)
+                    threading.Thread(target=set_proxy).start()
+                SETTING.write('Global', self.role, self.name)
+                # set menu as checked
+                self.QAction.setChecked(True)
+                self.menus[0].setChecked(True)
+                self.menus[0].setDisabled(False)
+                for menu_to_enable in self.menus[1:]:
+                    if self.url:
+                        menu_to_enable.setDisabled(False)
+                    else:
+                        menu_to_enable.setDisabled(True)
+                if manual:
+                    self.reset_downstream()
+            finally:
+                logging.debug(
+                    '[' + self.ext_name + ']' + self.name + " release Lock.")
+                self.update.disconnect()
 
         def critical(msg):
-            QMessageBox.critical(QWidget(), 'Critical', msg)
+            if not self.msg:
+                self.msg = msg
+                QMessageBox.critical(QWidget(), 'Critical', self.name + ": " + msg)
+            self.disable()
+            self.critical.disconnect()
 
-        self.update.connect(update)
-        self.critical.connect(critical)
         # start extension in new thread
         self.last = current[self.role]
         current[self.role] = self
+        if manual:
+            self.reset_upstream()
+        self.update.connect(update)
+        self.critical.connect(critical)
         self.start()
-
-    def manual_select(self):
-        self.select()
-        self.reset_downstream()
 
     def reset_downstream(self):
         for role in ('capture', 'bypass', 'proxy'):
@@ -166,7 +179,7 @@ class Extension(QThread):
             # stop extension of the same type
             if self.last:
                 self.last.stop()
-                self.last.reset_upstream()
+                # self.last.reset_upstream()
                 self.last = None
             # 读取配置文件，获得 yaml 字符串
             ext_dir = os.path.join(EXT_PATH, self.ext_name)
@@ -208,12 +221,11 @@ class Extension(QThread):
                     begin = True
                     continue
                 if begin and current[role]:
-                    logging.info('[' + self.ext_name + ']' + self.name + " Will stop pid=" + str(
-                        current[role].process.pid if current[role].process else None))
-                    # current[role].stop_and_reset()
-                    current[role].stop()
-                    current[role].reset_upstream()
-                    current[role].start()
+                    #logging.info('[' + self.ext_name + ']' + self.name + " Will stop pid=" + str(
+                        #current[role].process.pid if current[role].process else None))
+                    # current[role].stop()
+                    # current[role].reset_upstream()
+                    # current[role].start()
                     if not server_port:
                         if role == 'proxy':
                             # 上级代理默认为 socks5
@@ -229,6 +241,7 @@ class Extension(QThread):
                                 self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
                             server_port = PORT_BYPASS
                         self.jinja_dict['ServerPort'] = server_port
+                    break
 
             logging.info(
                 '[' + self.ext_name + ']' + self.name + " Local Prot" + self.local_port)
@@ -259,6 +272,7 @@ class Extension(QThread):
                                             stdout=self.ext_log, stderr=subprocess.STDOUT)
             logging.info('[' + self.ext_name + ']' + self.name + " started, pid=" + str(
                 self.process.pid if self.process else None))
+            logging.debug("EMIT: " + self.name + str(self.process.pid))
             self.update.emit()
         except Exception as e:
             logging.error(
@@ -284,26 +298,26 @@ class Extension(QThread):
             if self.kill:
                 subprocess.run(self.kill, shell=True,
                                stdout=self.ext_log, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " stop failed. Error: " + str(e))
         finally:
             if self.ext_log:
                 self.ext_log.close()
-            if system:
-                set_proxy()
+            #if system:
+                # set_proxy()
+                #threading.Thread(target=set_proxy).start()
 
-    def disable(self, *menus_to_disable):
-        for menu_to_disable in menus_to_disable:
+    def disable(self):
+        for menu_to_disable in self.menus:
             menu_to_disable.setDisabled(True)
-        menus_to_disable[0].setText(self.role.title() + ": Disabled")
+        self.menus[0].setText(self.role.title() + ": Disabled")
         self.QAction.setChecked(False)
-        # self.stop()
         stop_thread = threading.Thread(target=self.stop)
         stop_thread.start()
         stop_thread.join()
-        self.reset_upstream()
         current[self.role] = None
+        self.reset_upstream()
         self.reset_downstream()
         SETTING.write('Global', self.role, '')
 
@@ -314,7 +328,7 @@ class Proxy(Extension):
         self.role = 'proxy'
         # 自动启动上次启动的扩展
         if self.name == selected['proxy']:
-            self.select()
+            self.select(manual=True)
 
 
 class Bypass(Extension):
@@ -323,7 +337,7 @@ class Bypass(Extension):
         self.role = 'bypass'
         # 自动启动上次启动的扩展
         if self.name == selected['bypass']:
-            self.select()
+            self.select(manual=True)
 
 
 class Capture(Extension):
@@ -332,12 +346,12 @@ class Capture(Extension):
         self.role = 'capture'
         # 自动启动上次启动的扩展
         if self.name == selected['capture']:
-            self.select()
+            self.select(manual=True)
 
-    def select(self):
-        super().select()
-        self.menus_to_enable[1].triggered.connect(lambda: show_dashboard(self.url))
-        # self.menus_to_enable[1].triggered.connect(lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
+    def select(self, manual=False):
+        super().select(manual)
+        self.menus[1].triggered.connect(lambda: show_dashboard(self.url))
+        # self.menus[1].triggered.connect(lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
 
 
 def quit_app(code=0):
@@ -362,45 +376,49 @@ def set_proxy_menu(q_action):
     global system
     if q_action.isChecked():
         system = True
-        set_proxy()
+        # set_proxy()
+        threading.Thread(target=set_proxy).start()
         SETTING.write('Global', 'system', 'true')
     else:
         system = False
-        set_proxy()
+        # set_proxy()
+        threading.Thread(target=set_proxy).start()
         SETTING.write('Global', 'system', 'false')
 
 
 def set_proxy():
+    LOCK.acquire()
     if system:
         logging.info('Setting proxy bypass...')
-        subprocess.Popen(['bash', 'setproxy.sh', *SKIP_PROXY])
-        subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *SKIP_PROXY])
+        subprocess.Popen(['bash', 'setproxy.sh', *SKIP_PROXY]).wait()
+        subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *SKIP_PROXY]).wait()
     if system and http_port:
         logging.info('Setting http proxy...')
-        subprocess.Popen(['bash', 'setproxy.sh', 'httpon', http_port])
-        subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
-        subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True)
+        subprocess.Popen(['bash', 'setproxy.sh', 'httpon', http_port]).wait()
+        subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True).wait()
+        subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True).wait()
     else:
         unset_http_proxy()
     if system and socks5_port:
         logging.info('Setting socks5 proxy...')
-        subprocess.Popen(['bash', 'setproxy.sh', 'socks5on', socks5_port])
-        subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True)
+        subprocess.Popen(['bash', 'setproxy.sh', 'socks5on', socks5_port]).wait()
+        subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True).wait()
     else:
         unset_socks5_proxy()
+    LOCK.release()
 
 
 def unset_http_proxy():
     logging.info('Unsetting http proxy...')
-    subprocess.Popen(['bash', 'setproxy.sh', 'httpoff'])
-    subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True)
-    subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True)
+    subprocess.Popen(['bash', 'setproxy.sh', 'httpoff']).wait()
+    subprocess.Popen('networksetup -setwebproxystate "Wi-Fi" off', shell=True).wait()
+    subprocess.Popen('networksetup -setsecurewebproxystate "Wi-Fi" off', shell=True).wait()
 
 
 def unset_socks5_proxy():
     logging.info('Unsetting socks5 proxy...')
-    subprocess.Popen(['bash', 'setproxy.sh', 'socks5off'])
-    subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True)
+    subprocess.Popen(['bash', 'setproxy.sh', 'socks5off']).wait()
+    subprocess.Popen('networksetup -setsocksfirewallproxystate "Wi-Fi" off', shell=True).wait()
 
 
 def copy_shell():
@@ -431,7 +449,7 @@ def main():
         m_proxy.setShortcut('Ctrl+P')
         m_proxy.setCheckable(True)
         m_proxy.setDisabled(True)
-        m_proxy.triggered.connect(lambda: current['proxy'].disable(m_proxy))
+        m_proxy.triggered.connect(lambda: current['proxy'].disable())
         menu.addAction(m_proxy)
         proxy_dict = {}
         proxy_group = QActionGroup(menu)
@@ -447,7 +465,7 @@ def main():
         m_bypass.setShortcut('Ctrl+B')
         m_bypass.setCheckable(True)
         m_bypass.setDisabled(True)
-        m_bypass.triggered.connect(lambda: current['bypass'].disable(m_bypass))
+        m_bypass.triggered.connect(lambda: current['bypass'].disable())
         menu.addAction(m_bypass)
         bypass_dict = {}
         bypass_group = QActionGroup(menu)
@@ -466,7 +484,7 @@ def main():
         m_dashboard = QAction("Open Dashboard...")
         m_dashboard.setShortcut('Ctrl+D')
         m_dashboard.setDisabled(True)
-        m_capture.triggered.connect(lambda: current['capture'].disable(m_capture, m_dashboard))
+        m_capture.triggered.connect(lambda: current['capture'].disable())
         menu.addAction(m_capture)
         capture_dict = {}
         capture_group = QActionGroup(menu)
@@ -499,7 +517,8 @@ def main():
         m_set_system.setCheckable(True)
         if system:
             m_set_system.setChecked(True)
-            set_proxy()
+            # set_proxy()
+            threading.Thread(target=set_proxy).start()
         menu.addSeparator()
         menu.addAction(m_set_system)
         menu.addSeparator()

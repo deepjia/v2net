@@ -7,6 +7,7 @@ import subprocess
 import yaml
 import pyperclip
 import logging
+import threading
 from logging.handlers import RotatingFileHandler
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
@@ -78,7 +79,7 @@ current = {x: None for x in ('proxy', 'bypass', 'capture')}
 class Extension(QThread):
     # define signal
     update = pyqtSignal()
-    error = pyqtSignal(str)
+    critical = pyqtSignal(str)
 
     def __init__(self, extension, *menus_to_enable):
         super().__init__()
@@ -126,11 +127,11 @@ class Extension(QThread):
                 else:
                     menu_to_enable.setDisabled(True)
 
-        def error(msg):
+        def critical(msg):
             QMessageBox.critical(QWidget(), 'Critical', msg)
 
         self.update.connect(update)
-        self.error.connect(error)
+        self.critical.connect(critical)
         # start extension in new thread
         self.last = current[self.role]
         current[self.role] = self
@@ -161,13 +162,13 @@ class Extension(QThread):
     def run(self):
         MUTEX.lock()
         logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
-        # stop extension of the same type
-        if self.last:
-            self.last.stop()
-            self.last.reset_upstream()
-            self.last = None
-        # 读取配置文件，获得 yaml 字符串
         try:
+            # stop extension of the same type
+            if self.last:
+                self.last.stop()
+                self.last.reset_upstream()
+                self.last = None
+            # 读取配置文件，获得 yaml 字符串
             ext_dir = os.path.join(EXT_PATH, self.ext_name)
             ext_file = os.path.join(ext_dir, 'extension.yaml')
             if not os.path.exists(ext_file):
@@ -262,7 +263,7 @@ class Extension(QThread):
         except Exception as e:
             logging.error(
                 '[' + self.ext_name + ']' + self.name + " start failed. Error: " + str(e))
-            self.error.emit(repr(e))
+            self.critical.emit(repr(e))
         finally:
             logging.debug(
                 '[' + self.ext_name + ']' + self.name + " release Lock.")
@@ -297,7 +298,10 @@ class Extension(QThread):
             menu_to_disable.setDisabled(True)
         menus_to_disable[0].setText(self.role.title() + ": Disabled")
         self.QAction.setChecked(False)
-        self.stop()
+        # self.stop()
+        stop_thread = threading.Thread(target=self.stop)
+        stop_thread.start()
+        stop_thread.join()
         self.reset_upstream()
         current[self.role] = None
         self.reset_downstream()
@@ -339,7 +343,10 @@ class Capture(Extension):
 def quit_app(code=0):
     logging.info("Quiting App...")
     for ins in filter(None, current.values()):
-        ins.stop()
+        # ins.stop()
+        stop_thread = threading.Thread(target=ins.stop)
+        stop_thread.start()
+        stop_thread.join()
     if system:
         unset_http_proxy()
         unset_socks5_proxy()

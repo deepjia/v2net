@@ -8,14 +8,17 @@
 glider is a forward proxy with multiple protocols support, and also a dns forwarding server with ipset management features(like dnsmasq).
 
 we can set up local listeners as proxy servers, and forward requests to internet via forwarders.
-```
-                |Forwarder ----------------->|         
+
+```bash
+                |Forwarder ----------------->|
    Listener --> |                            | Internet
-                |Forwarder --> Forwarder->...| 
+                |Forwarder --> Forwarder->...|
 ```
 
 ## Features
+
 Listen (local proxy server):
+
 - Socks5 proxy(tcp&udp)
 - Http proxy(tcp)
 - SS proxy(tcp&udp)
@@ -23,9 +26,9 @@ Listen (local proxy server):
 - TCP tunnel
 - UDP tunnel
 - UDP over TCP tunnel
-- DNS Tunnel(udp2tcp)
 
 Forward (local proxy client/upstream proxy server):
+
 - Socks5 proxy(tcp&udp)
 - Http proxy(tcp)
 - SS proxy(tcp&udp&uot)
@@ -35,17 +38,22 @@ Forward (local proxy client/upstream proxy server):
 - Websocket, use it together with above proxy protocols(tcp)
 
 DNS Forwarding Server (udp2tcp):
+
 - Listen on UDP and forward dns requests to remote dns server in TCP via forwarders
 - Specify different upstream dns server based on destinations(in rule file)
 - Tunnel mode: forward to a fixed upstream dns server
 - Add resolved IPs to proxy rules
 - Add resolved IPs to ipset
+- DNS cache
+- Custom dns record
 
 IPSet Management:
+
 - Add ip/cidrs from rule files on startup
 - Add resolved ips for domains from rule files by dns forwarding server 
 
 General:
+
 - Http and socks5 on the same port
 - Forward chain
 - HA or RR strategy for multiple forwarders
@@ -53,46 +61,55 @@ General:
 - Rule proxy based on destinations: [Config Examples](config/examples)
 
 TODO:
+
+- [ ] IPv6 support
 - [ ] Transparent UDP proxy (iptables tproxy)
-- [ ] DNS Cache
 - [ ] Performance tuning
 - [ ] TUN/TAP device support
-- [ ] IPv6 support
-- [ ] SSH tunnel support
+- [ ] SSH tunnel support (maybe)
 
 ## Install
-Binary: 
+
+Binary:
+
 - [https://github.com/nadoo/glider/releases](https://github.com/nadoo/glider/releases)
 
 Go Get (requires **Go 1.10+** ):
+
 ```bash
 go get -u github.com/nadoo/glider
 ```
 
-ArchLinux: 
+ArchLinux:
+
 ```bash
 sudo pacman -S glider
 ```
 
 ## Run
+
 command line:
+
 ```bash
 glider -listen :8443 -verbose
 ```
 
 config file:
+
 ```bash
 glider -config CONFIGPATH
 ```
 
 command line with config file:
+
 ```bash
 glider -config CONFIGPATH -listen :8080 -verbose
 ```
 
 ## Usage
+
 ```bash
-glider v0.6.3 usage:
+glider v0.6.5 usage:
   -checkduration int
         proxy check duration(seconds) (default 30)
   -checkwebsite string
@@ -101,6 +118,8 @@ glider v0.6.3 usage:
         config file path
   -dns string
         dns forwarder server listen address
+  -dnsrecord value
+        custom dns record, format: domain/ip
   -dnsserver value
         remote dns server
   -forward value
@@ -131,10 +150,9 @@ Available Schemes:
   tcptun: tcp tunnel
   udptun: udp tunnel
   uottun: udp over tcp tunnel
-  dnstun: listen on udp port and forward all dns requests to remote dns server via forwarders(tcp)
 
 Available schemes for different modes:
-  listen: mixed ss socks5 http redir tcptun udptun uottun dnstun
+  listen: mixed ss socks5 http redir tcptun udptun uottun
   forward: ss socks5 http ssr vmess tls ws
 
 SS scheme:
@@ -176,6 +194,13 @@ TLS and Websocket with a specified proxy protocol:
   tls://host:port[?skipVerify=true],ws://[@/path],http://[user:pass@]
   tls://host:port[?skipVerify=true],ws://[@/path],socks5://[user:pass@]
   tls://host:port[?skipVerify=true],ws://[@/path],vmess://[security:]uuid@?alterID=num
+
+DNS forwarding server:
+  dns=:53
+  dnsserver=8.8.8.8:53
+  dnsserver=1.1.1.1:53
+  dnsrecord=www.example.com/1.2.3.4
+  dnsrecord=www.example.com/2606:2800:220:1:248:1893:25c8:1946
 
 Available forward strategies:
   rr: Round Robin mode
@@ -230,14 +255,18 @@ Examples:
   glider -listen socks5://:1080 -listen http://:8080 -forward ss://method:pass@1.1.1.1:8443
     -listen on :1080 as socks5 server, :8080 as http proxy server, forward all requests via remote ss server.
 
-  glider -listen redir://:1081 -listen dnstun://:53=8.8.8.8:53 -forward ss://method:pass@server1:port1,ss://method:pass@server2:port2
+  glider -listen redir://:1081 -dns=:53 -dnsserver=8.8.8.8:53 -forward ss://method:pass@server1:port1,ss://method:pass@server2:port2
     -listen on :1081 as transparent redirect server, :53 as dns server, use forward chain: server1 -> server2.
 
   glider -listen socks5://:1080 -forward ss://method:pass@server1:port1 -forward ss://method:pass@server2:port2 -strategy rr
     -listen on :1080 as socks5 server, forward requests via server1 and server2 in round robin mode.
+
+  glider -verbose -dns=:53 -dnsserver=8.8.8.8:53 -dnsrecord=www.example.com/1.2.3.4
+    -listen on :53 as dns server, forward dns requests to 8.8.8.8:53, return 1.2.3.4 when resolving www.example.com.
 ```
 
 ## Advanced Usage
+
 - [ConfigFile](config)
   - [glider.conf.example](config/glider.conf.example)
   - [office.rule.example](config/rules.d/office.rule.example)
@@ -246,9 +275,11 @@ Examples:
   - [transparent proxy without dnsmasq](config/examples/9.transparent_proxy_without_dnsmasq)
 
 ## Service
+
 - systemd: [https://github.com/nadoo/glider/blob/master/systemd/](https://github.com/nadoo/glider/blob/master/systemd/)
 
 ## Links
+
 - [go-ss2](https://github.com/shadowsocks/go-shadowsocks2): ss protocol support
 - [conflag](https://github.com/nadoo/conflag): command line and config file parse support
 - [ArchLinux](https://www.archlinux.org/packages/community/x86_64/glider): a great linux distribution with glider pre-built package

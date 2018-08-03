@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemT
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 from v2config import Config
 
-VERSION = '0.6.0'
+VERSION = '0.6.1'
 APP = QApplication([])
 APP.setQuitOnLastWindowClosed(False)
 if getattr(sys, 'frozen', False):
@@ -106,6 +106,7 @@ class Extension(QThread):
         self.msg = None
 
     def select(self, manual=False):
+        logging.info(self.name + " selected.")
         # bind action to signal
         def update():
             try:
@@ -119,7 +120,7 @@ class Extension(QThread):
                 # set proxy
                 if system and self.local_port == PORT:
                     # set_proxy()
-                    logging.debug("Update: " + self.name)
+                    logging.debug('[' + self.ext_name + ']' + self.name + ' update proxy.')
                     threading.Thread(target=set_proxy).start()
                 SETTING.write('Global', self.role, self.name)
                 # set menu as checked
@@ -132,26 +133,32 @@ class Extension(QThread):
                     else:
                         menu_to_enable.setDisabled(True)
                 if manual:
+                    logging.debug(
+                        '[' + self.ext_name + ']' + self.name + " is going to reset downstream proxy.")
                     self.reset_downstream()
             finally:
-                logging.debug(
-                    '[' + self.ext_name + ']' + self.name + " release Lock.")
-                self.update.disconnect()
+                self.update.disconnect(update)
 
         def critical(msg):
             if not self.msg:
                 self.msg = msg
                 QMessageBox.critical(QWidget(), 'Critical', self.name + ": " + msg)
             self.disable()
-            self.critical.disconnect()
+            self.critical.disconnect(critical)
 
         # start extension in new thread
         self.last = current[self.role]
         current[self.role] = self
         if manual:
+            logging.debug(
+                '[' + self.ext_name + ']' + self.name + " is going to reset upstream proxy.")
             self.reset_upstream()
         self.update.connect(update)
         self.critical.connect(critical)
+        if self.last and not self.last.isFinished:
+            logging.debug(
+                '[' + self.last.ext_name + ']' + self.last.name + " is going to exit.")
+            self.last.exit()
         self.start()
 
     def reset_downstream(self):
@@ -173,9 +180,9 @@ class Extension(QThread):
                 break
 
     def run(self):
-        MUTEX.lock()
-        logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
         try:
+            MUTEX.lock()
+            logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
             # stop extension of the same type
             if self.last:
                 self.last.stop()
@@ -244,9 +251,9 @@ class Extension(QThread):
                     break
 
             logging.info(
-                '[' + self.ext_name + ']' + self.name + " Local Prot" + self.local_port)
+                '[' + self.ext_name + ']' + self.name + " Local Prot: " + self.local_port)
             logging.info(
-                '[' + self.ext_name + ']' + self.name + " Server Prot" + str(server_port))
+                '[' + self.ext_name + ']' + self.name + " Server Prot: " + str(server_port))
             # jinja2 渲染参数
             self.jinja_dict['ExtensionPort'] = self.local_port
             param = yaml.load(Template(yaml_str).render(**self.jinja_dict))
@@ -272,7 +279,7 @@ class Extension(QThread):
                                             stdout=self.ext_log, stderr=subprocess.STDOUT)
             logging.info('[' + self.ext_name + ']' + self.name + " started, pid=" + str(
                 self.process.pid if self.process else None))
-            logging.debug("EMIT: " + self.name + str(self.process.pid))
+            logging.debug("EMIT: " + self.name + ', pid=' + str(self.process.pid))
             self.update.emit()
         except Exception as e:
             logging.error(
@@ -326,27 +333,18 @@ class Proxy(Extension):
     def __init__(self, *args):
         super().__init__(*args)
         self.role = 'proxy'
-        # 自动启动上次启动的扩展
-        if self.name == selected['proxy']:
-            self.select(manual=True)
 
 
 class Bypass(Extension):
     def __init__(self, *args):
         super().__init__(*args)
         self.role = 'bypass'
-        # 自动启动上次启动的扩展
-        if self.name == selected['bypass']:
-            self.select(manual=True)
 
 
 class Capture(Extension):
     def __init__(self, *args):
         super().__init__(*args)
         self.role = 'capture'
-        # 自动启动上次启动的扩展
-        if self.name == selected['capture']:
-            self.select(manual=True)
 
     def select(self, manual=False):
         super().select(manual)
@@ -451,13 +449,13 @@ def main():
         m_proxy.setDisabled(True)
         m_proxy.triggered.connect(lambda: current['proxy'].disable())
         menu.addAction(m_proxy)
-        proxy_dict = {}
         proxy_group = QActionGroup(menu)
-        for proxy in PROFILE.get_items('Proxy'):
-            proxy_name = proxy[0]
-            proxy_dict[proxy_name] = Proxy(proxy, m_proxy)
-            proxy_group.addAction(proxy_dict[proxy_name].QAction)
-            menu.addAction(proxy_dict[proxy_name].QAction)
+        for item in PROFILE.get_items('Proxy'):
+            proxy = Proxy(item, m_proxy)
+            proxy_group.addAction(proxy.QAction)
+            menu.addAction(proxy.QAction)
+            if item[0] == selected['proxy']:
+                proxy.select(manual=True)
 
         # Bypass
         menu.addSeparator()
@@ -467,13 +465,13 @@ def main():
         m_bypass.setDisabled(True)
         m_bypass.triggered.connect(lambda: current['bypass'].disable())
         menu.addAction(m_bypass)
-        bypass_dict = {}
         bypass_group = QActionGroup(menu)
-        for bypass in PROFILE.get_items('Bypass'):
-            bypass_name = bypass[0]
-            bypass_dict[bypass_name] = Bypass(bypass, m_bypass)
-            bypass_group.addAction(bypass_dict[bypass_name].QAction)
-            menu.addAction(bypass_dict[bypass_name].QAction)
+        for item in PROFILE.get_items('Bypass'):
+            bypass = Bypass(item, m_bypass)
+            bypass_group.addAction(bypass.QAction)
+            menu.addAction(bypass.QAction)
+            if item[0] == selected['bypass']:
+                bypass.select(manual=True)
 
         # Capture
         menu.addSeparator()
@@ -486,13 +484,13 @@ def main():
         m_dashboard.setDisabled(True)
         m_capture.triggered.connect(lambda: current['capture'].disable())
         menu.addAction(m_capture)
-        capture_dict = {}
         capture_group = QActionGroup(menu)
-        for capture in PROFILE.get_items('Capture'):
-            capture_name = capture[0]
-            capture_dict[capture_name] = Capture(capture, m_capture, m_dashboard)
-            capture_group.addAction(capture_dict[capture_name].QAction)
-            menu.addAction(capture_dict[capture_name].QAction)
+        for item in PROFILE.get_items('Capture'):
+            capture = Capture(item, m_capture, m_dashboard)
+            capture_group.addAction(capture.QAction)
+            menu.addAction(capture.QAction)
+            if item[0] == selected['capture']:
+                capture.select(manual=True)
         menu.addAction(m_dashboard)
 
         # Common

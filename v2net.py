@@ -159,6 +159,7 @@ class Extension(QThread):
             logging.debug(
                 '[' + self.last.ext_name + ']' + self.last.name + " is going to exit.")
             self.last.exit()
+            self.last.wait()
         self.start()
 
     def reset_downstream(self):

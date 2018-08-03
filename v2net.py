@@ -155,7 +155,7 @@ class Extension(QThread):
             self.reset_upstream()
         self.update.connect(update)
         self.critical.connect(critical)
-        if self.last and not self.last.isFinished:
+        if self.last and not self.last.isFinished():
             logging.debug(
                 '[' + self.last.ext_name + ']' + self.last.name + " is going to exit.")
             self.last.exit()

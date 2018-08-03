@@ -363,7 +363,7 @@ def quit_app(code=0):
     if system:
         unset_http_proxy()
         unset_socks5_proxy()
-    logging.info("Bye")
+    logging.info("Good Bye! 👋")
     APP.exit(code)
 
 
@@ -435,6 +435,7 @@ def copy_shell():
 
 
 def main():
+    logging.info("Hello! 👋")
     exitcode = 0
     try:
         menu = QMenu()

@@ -106,6 +106,8 @@ Download latest release:
 
 Unpack and drag `V2Net.app` to `Application` folder.
 
+Go to 'System Preferences' - 'Users & Groups' - 'Login Items', add 'V2Net' so as to start at login.
+
 Open `Application` folder, right click on `V2Net.app`, hold `option` key, click `Open`.
 
 ## Usage

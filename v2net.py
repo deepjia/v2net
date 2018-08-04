@@ -82,7 +82,7 @@ class Extension(QThread):
     update = pyqtSignal()
     critical = pyqtSignal(str)
 
-    def __init__(self, extension, role, *menus):
+    def __init__(self, item, role, *menus):
         super().__init__()
         self.role = role
         self.jinja_dict = None
@@ -96,8 +96,8 @@ class Extension(QThread):
         self.kill = None
         self.process = None
         self.menus = menus
-        self.ext_name, *self.values = [x.strip() for x in extension[1].split(',')]
-        self.name = extension[0]
+        self.ext_name, *self.values = [x.strip() for x in item[1].split(',')]
+        self.name = item[0]
         self.QAction = QAction(self.name)
         self.QAction.setCheckable(True)
         self.QAction.triggered.connect(lambda :self.select(manual=True))
@@ -196,7 +196,7 @@ class Extension(QThread):
             ext_dir = os.path.join(EXT_PATH, self.ext_name)
             ext_file = os.path.join(ext_dir, 'extension.yaml')
             if not os.path.exists(ext_file):
-                ext_file = os.path.join(ext_dir, 'extension.yaml')
+                ext_file = os.path.join(ext_dir, 'extension.json')
             with open(ext_file, 'r') as f:
                 yaml_str = f.read()
                 param_temp = yaml.load(yaml_str)

@@ -1,8 +1,6 @@
 pre: "cat '{{ ProfileDir }}/{{Bypass}}' >> '{{ TempDir }}/privoxy.actionhead'; sed '1s/alias/{alias}/' '{{ TempDir }}/privoxy.actionhead' > '{{ TempDir }}/privoxy.action'"
 bin: "privoxy"
-arglist:
-  - "--no-daemon"
-  - "{{ TempDir }}/privoxy.config"
+args: "--no-daemon '{{ TempDir }}/privoxy.config'"
 keys:
   - "Protocol"
   - "ServerAddress"

@@ -82,9 +82,9 @@ class Extension(QThread):
     update = pyqtSignal()
     critical = pyqtSignal(str)
 
-    def __init__(self, extension, *menus):
+    def __init__(self, extension, role, *menus):
         super().__init__()
-        self.role = None
+        self.role = role
         self.jinja_dict = None
         self.http = None
         self.socks5 = None
@@ -127,11 +127,14 @@ class Extension(QThread):
                 self.QAction.setChecked(True)
                 self.menus[0].setChecked(True)
                 self.menus[0].setDisabled(False)
-                for menu_to_enable in self.menus[1:]:
+                if len(self.menus)>1:
                     if self.url:
-                        menu_to_enable.setDisabled(False)
+                        #self.menus[1].triggered.disconnect()
+                        self.menus[1].triggered.connect(lambda: show_url(self.url))
+                        # self.menus[1].triggered.connect(lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
+                        self.menus[1].setDisabled(False)
                     else:
-                        menu_to_enable.setDisabled(True)
+                        self.menus[1].setDisabled(True)
                 if manual:
                     logging.debug(
                         '[' + self.ext_name + ']' + self.name + " is going to reset downstream proxy.")
@@ -229,11 +232,6 @@ class Extension(QThread):
                     begin = True
                     continue
                 if begin and current[role]:
-                    #logging.info('[' + self.ext_name + ']' + self.name + " Will stop pid=" + str(
-                        #current[role].process.pid if current[role].process else None))
-                    # current[role].stop()
-                    # current[role].reset_upstream()
-                    # current[role].start()
                     if not server_port:
                         if role == 'proxy':
                             # 上级代理默认为 socks5
@@ -330,29 +328,6 @@ class Extension(QThread):
         SETTING.write('Global', self.role, '')
 
 
-class Proxy(Extension):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.role = 'proxy'
-
-
-class Bypass(Extension):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.role = 'bypass'
-
-
-class Capture(Extension):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.role = 'capture'
-
-    def select(self, manual=False):
-        super().select(manual)
-        self.menus[1].triggered.connect(lambda: show_dashboard(self.url))
-        # self.menus[1].triggered.connect(lambda: WINDOW.show_dashboard(self.ext_name.title(), self.url))
-
-
 def quit_app(code=0):
     logging.info("Quiting App...")
     for ins in filter(None, current.values()):
@@ -367,7 +342,7 @@ def quit_app(code=0):
     APP.exit(code)
 
 
-def show_dashboard(url):
+def show_url(url):
     subprocess.Popen('open -a Safari ' + url, shell=True)
 
 
@@ -453,7 +428,7 @@ def main():
         menu.addAction(m_proxy)
         proxy_group = QActionGroup(menu)
         for item in PROFILE.get_items('Proxy'):
-            proxy = Proxy(item, m_proxy)
+            proxy = Extension(item, 'proxy', m_proxy)
             proxy_group.addAction(proxy.QAction)
             menu.addAction(proxy.QAction)
             if item[0] == selected['proxy']:
@@ -469,7 +444,7 @@ def main():
         menu.addAction(m_bypass)
         bypass_group = QActionGroup(menu)
         for item in PROFILE.get_items('Bypass'):
-            bypass = Bypass(item, m_bypass)
+            bypass = Extension(item, 'bypass', m_bypass)
             bypass_group.addAction(bypass.QAction)
             menu.addAction(bypass.QAction)
             if item[0] == selected['bypass']:
@@ -488,7 +463,7 @@ def main():
         menu.addAction(m_capture)
         capture_group = QActionGroup(menu)
         for item in PROFILE.get_items('Capture'):
-            capture = Capture(item, m_capture, m_dashboard)
+            capture = Extension(item, 'capture', m_capture, m_dashboard)
             capture_group.addAction(capture.QAction)
             menu.addAction(capture.QAction)
             if item[0] == selected['capture']:
@@ -530,7 +505,7 @@ def main():
         menu.addSeparator()
         m_update = QAction("Check Update")
         m_update.setShortcut("Ctrl+U")
-        m_update.triggered.connect(lambda: show_dashboard("https://github.com/deepjia/v2net/releases"))
+        m_update.triggered.connect(lambda: show_url("https://github.com/deepjia/v2net/releases"))
         m_quit = QAction('Quit V2Net (' + VERSION + ')')
         m_quit.setShortcut('Ctrl+Q')
         m_quit.triggered.connect(APP.quit)

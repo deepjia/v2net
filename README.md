@@ -79,6 +79,8 @@ Or just use the **gost** (for non-AEAD encryption) or **glider** (for AEAD encry
 Install with [Homebrew](https://brew.sh/):
 
 ```bash
+sudo mkdir /usr/local/sbin
+sudo chown -R `whoami`:admin /usr/local/sbin
 brew install privoxy
 ```
 

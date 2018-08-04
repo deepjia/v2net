@@ -22,7 +22,7 @@ if getattr(sys, 'frozen', False):
     # PyInstaller Bundle
     BASE_PATH = sys._MEIPASS
     os.chdir(BASE_PATH)
-    ENV_PATH = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+    ENV_PATH = '/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin'
 else:
     # Normal Python Environment
     BASE_PATH = os.path.dirname(os.path.realpath(__file__))

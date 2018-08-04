@@ -10,6 +10,6 @@ http: true
 socks5: false
 render:
   "{{ ExtensionDir }}/template_config.jinja": "{{ TempDir }}/privoxy.config"
-  "{{ ExtensionDir }}/template_actionhead.jinja":"{{ TempDir }}/privoxy.actionhead"
+  "{{ ExtensionDir }}/template_actionhead.jinja": "{{ TempDir }}/privoxy.actionhead"
 default:
   ServerAddress: "127.0.0.1"

@@ -326,6 +326,8 @@ class Extension(QThread):
         self.reset_upstream()
         self.reset_downstream()
         SETTING.write('Global', self.role, '')
+        if system:
+            threading.Thread(target=set_proxy).start()
 
 
 def quit_app(code=0):

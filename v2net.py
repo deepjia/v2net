@@ -85,7 +85,7 @@ class Extension(QThread):
     def __init__(self, item, role, *menus):
         super().__init__()
         self.role = role
-        self.jinja_dict = None
+        self.kv = None
         self.http = None
         self.socks5 = None
         self.local_port = ''
@@ -206,12 +206,12 @@ class Extension(QThread):
             self.http = param_temp.get('http', False)
             self.socks5 = param_temp.get('socks5', False)
             # 使用关键数据，渲染 yaml 字符串，然后重新提取 yaml 词典
-            self.jinja_dict = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
-            self.jinja_dict['ExtensionDir'] = ext_dir
-            self.jinja_dict['ProfileDir'] = PROFILE_PATH
-            self.jinja_dict['HomeDir'] = os.environ.get('HOME')
+            self.kv = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
+            self.kv['ExtensionDir'] = ext_dir
+            self.kv['ProfileDir'] = PROFILE_PATH
+            self.kv['HomeDir'] = os.environ.get('HOME')
             temp_dir = os.path.join(TEMP_PATH, self.role)
-            self.jinja_dict['TempDir'] = temp_dir
+            self.kv['TempDir'] = temp_dir
             os.mkdir(temp_dir) if not os.path.exists(temp_dir) else None
             # 确定 Local Port
             self.local_port = PORT
@@ -225,7 +225,7 @@ class Extension(QThread):
                     break
 
             # 确定 Server Port 和 Protocol
-            server_port = self.jinja_dict.get('ServerPort')
+            server_port = self.kv.get('ServerPort')
             begin = False
             for role in ('capture', 'bypass', 'proxy'):
                 if role == self.role:
@@ -235,18 +235,18 @@ class Extension(QThread):
                     if not server_port:
                         if role == 'proxy':
                             # 上级代理默认为 socks5
-                            if not self.jinja_dict.get('ServerProtocol'):
-                                self.jinja_dict['ServerProtocolSocks5'] = current[role].socks5
-                                self.jinja_dict['ServerProtocolHttp'] = current[role].http
-                                self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
+                            if not self.kv.get('ServerProtocol'):
+                                self.kv['ServerProtocolSocks5'] = current[role].socks5
+                                self.kv['ServerProtocolHttp'] = current[role].http
+                                self.kv['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
                             server_port = PORT_PROXY
                         else:
-                            if not self.jinja_dict.get('ServerProtocol'):
-                                self.jinja_dict['ServerProtocolSocks5'] = current[role].socks5
-                                self.jinja_dict['ServerProtocolHttp'] = current[role].http
-                                self.jinja_dict['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
+                            if not self.kv.get('ServerProtocol'):
+                                self.kv['ServerProtocolSocks5'] = current[role].socks5
+                                self.kv['ServerProtocolHttp'] = current[role].http
+                                self.kv['ServerProtocol'] = 'socks5' if current[role].socks5 else 'http'
                             server_port = PORT_BYPASS
-                        self.jinja_dict['ServerPort'] = server_port
+                        self.kv['ServerPort'] = server_port
                     break
 
             logging.info(
@@ -254,8 +254,8 @@ class Extension(QThread):
             logging.info(
                 '[' + self.ext_name + ']' + self.name + " Server Prot: " + str(server_port))
             # jinja2 渲染参数
-            self.jinja_dict['ExtensionPort'] = self.local_port
-            param = yaml.load(Template(yaml_str).render(**self.jinja_dict))
+            self.kv['ExtensionPort'] = self.local_port
+            param = yaml.load(Template(yaml_str).render(**self.kv))
             self.bin = param['bin']
             render = param.get('render', dict())
             self.url = param.get('url')
@@ -266,7 +266,7 @@ class Extension(QThread):
             self.exitargs = param.get('exitargs')
             for src, dist in render.items():
                 with open(src, 'r') as f:
-                    content = Template(f.read()).render(**self.jinja_dict)
+                    content = Template(f.read()).render(**self.kv)
                 with open(dist, 'w') as f:
                     f.write(content)
             # 启动子进程

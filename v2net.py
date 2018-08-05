@@ -184,8 +184,8 @@ class Extension(QThread):
                 break
 
     def run(self):
+        MUTEX.lock()
         try:
-            MUTEX.lock()
             logging.debug('[' + self.ext_name + ']' + self.name + ' get Lock.')
             # stop extension of the same type
             if self.last:
@@ -310,9 +310,6 @@ class Extension(QThread):
         finally:
             if self.ext_log:
                 self.ext_log.close()
-            #if system:
-                # set_proxy()
-                #threading.Thread(target=set_proxy).start()
 
     def disable(self):
         for menu_to_disable in self.menus:
@@ -364,24 +361,28 @@ def set_proxy_menu(q_action):
 
 def set_proxy():
     LOCK.acquire()
-    if system:
-        logging.info('Setting proxy bypass...')
-        subprocess.Popen(['bash', 'setproxy.sh', *SKIP_PROXY]).wait()
-        subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *SKIP_PROXY]).wait()
-    if system and http_port:
-        logging.info('Setting http proxy...')
-        subprocess.Popen(['bash', 'setproxy.sh', 'httpon', http_port]).wait()
-        subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True).wait()
-        subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True).wait()
-    else:
-        unset_http_proxy()
-    if system and socks5_port:
-        logging.info('Setting socks5 proxy...')
-        subprocess.Popen(['bash', 'setproxy.sh', 'socks5on', socks5_port]).wait()
-        subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True).wait()
-    else:
-        unset_socks5_proxy()
-    LOCK.release()
+    try:
+        if system:
+            logging.info('Setting proxy bypass...')
+            subprocess.Popen(['bash', 'setproxy.sh', *SKIP_PROXY]).wait()
+            subprocess.Popen(['networksetup', '-setproxybypassdomains', 'Wi-Fi', *SKIP_PROXY]).wait()
+        if system and http_port:
+            logging.info('Setting http proxy...')
+            subprocess.Popen(['bash', 'setproxy.sh', 'httpon', http_port]).wait()
+            subprocess.Popen('networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True).wait()
+            subprocess.Popen('networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ' + http_port, shell=True).wait()
+        else:
+            unset_http_proxy()
+        if system and socks5_port:
+            logging.info('Setting socks5 proxy...')
+            subprocess.Popen(['bash', 'setproxy.sh', 'socks5on', socks5_port]).wait()
+            subprocess.Popen('networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ' + socks5_port, shell=True).wait()
+        else:
+            unset_socks5_proxy()
+    except Exception as e:
+        logging.error('Setting proxy failed: ' + str(e))
+    finally:
+        LOCK.release()
 
 
 def unset_http_proxy():

@@ -64,7 +64,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install v2ray/v2ray/v2ray-core
 ```
 Currently only vmess+ws+tls support, but you can customize to support more.
-For vmess only, **glider** is also a choice.
+Now **glider** is also a choice.
 
 ### ss-libev
 Install with [Homebrew](https://brew.sh/):
@@ -162,6 +162,8 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
 #    AEAD_AES_128_GCM AEAD_AES_192_GCM AEAD_AES_256_GCM AEAD_CHACHA20_POLY1305 AES-128-CFB AES-128-CTR AES-192-CFB AES-192-CTR AES-256-CFB AES-256-CTR CHACHA20-IETF XCHACHA20
 🇯🇵Eg.Proxy(gost)(ss)ExampleProxy = gost, ss, chacha20:password@server_ip, 12345, gost.txt
 🇨🇳Eg.Proxy(glider)(ss)ExampleProxy = glider, ss, AEAD_AES_256_GCM:password@server_ip, 12345
+# Glider support muti-protocol:
+🇨🇳Eg.ProxyAndBypass(glider)(vmess-tls-ws)ExampleProxy = glider, tls, example.com, 443, , ws://@/path, vmess://[security:]uuid@server_ip, 12345?alterID=num
 # Other extensions need prerequisites:
 🇨🇳️Eg.Proxy(ss-libev)(ss)ExampleProxy = ss-libev, server_ip, 12345, chacha20-ietf-poly1305, password
 🇨🇳Eg.Proxy(v2ray)(vmess-tls-ws)ExampleProxy = v2ray, example.org, 443, /ws, ID, alterID

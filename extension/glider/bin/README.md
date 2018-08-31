@@ -56,9 +56,10 @@ General:
 
 - Http and socks5 on the same port
 - Forward chain
-- HA or RR strategy for multiple forwarders
+- RR/HA/LHA strategy for multiple forwarders
 - Periodical proxy checking
 - Rule proxy based on destinations: [Config Examples](config/examples)
+- Send requests from specific ip/interface
 
 TODO:
 
@@ -109,7 +110,7 @@ glider -config CONFIGPATH -listen :8080 -verbose
 ## Usage
 
 ```bash
-glider v0.6.6 usage:
+glider v0.6.7 usage:
   -checkduration int
         proxy check interval(seconds) (default 30)
   -checkwebsite string
@@ -118,6 +119,8 @@ glider v0.6.6 usage:
         config file path
   -dns string
         dns forwarder server listen address
+  -dnsalwaystcp
+        always use tcp to query upstream dns servers no matter there is a forwarder or not
   -dnsmaxttl int
         maximum TTL value for entries in the CACHE(seconds) (default 1800)
   -dnsminttl int
@@ -130,10 +133,14 @@ glider v0.6.6 usage:
         timeout value used in multiple dnsservers switch(seconds) (default 3)
   -forward value
         forward url, format: SCHEME://[USER|METHOD:PASSWORD@][HOST]:PORT?PARAMS[,SCHEME://[USER|METHOD:PASSWORD@][HOST]:PORT?PARAMS]
+  -interface string
+        source ip or source interface
   -ipset string
         ipset name
   -listen value
         listen url, format: SCHEME://[USER|METHOD:PASSWORD@][HOST]:PORT?PARAMS
+  -maxfailures int
+        max failures to change forwarder status to disabled (default 3)
   -rulefile value
         rule file path
   -rules-dir string
@@ -211,6 +218,18 @@ DNS forwarding server:
 Available forward strategies:
   rr: Round Robin mode
   ha: High Availability mode
+  lha: Latency based High Availability mode
+  dh: Destination Hashing mode
+
+Forwarder option scheme: FORWARD_URL#OPTIONS
+  priority: set the priority of that forwarder, default:0
+  interface: set local interface or ip address used to connect remote server
+  -
+  Examples:
+    socks5://1.1.1.1:1080#priority=100
+    vmess://[security:]uuid@host:port?alterID=num#priority=200
+    vmess://[security:]uuid@host:port?alterID=num#priority=200&interface=192.168.1.99
+    vmess://[security:]uuid@host:port?alterID=num#priority=200&interface=eth0
 
 Config file format(see `glider.conf.example` as an example):
   # COMMENT LINE

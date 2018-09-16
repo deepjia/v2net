@@ -64,7 +64,7 @@ Install with [Homebrew](https://brew.sh/):
 brew install v2ray/v2ray/v2ray-core
 ```
 Currently only vmess+ws+tls support, but you can customize to support more.
-Now **glider** is also a choice.
+Or just use the **glider** extension instead, which is **recommended**.
 
 ### ss-libev
 Install with [Homebrew](https://brew.sh/):
@@ -73,7 +73,9 @@ Install with [Homebrew](https://brew.sh/):
 brew install shadowsocks-libev
 ```
 
-Or just use the **gost** (for non-AEAD encryption) or **glider** (for AEAD encryption) extension instead, which are **recommended**.
+Or just use the **glider** extension instead, which is **recommended**.
+
+If you use non-AEAD encryption, **gost** extension is also a choice.
 
 ### privoxy
 Install with [Homebrew](https://brew.sh/):
@@ -159,7 +161,7 @@ skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
 # gost support:
 #    aes-128-cfb, aes-192-cfb, aes-256-cfb, bf-cfb, cast5-cfb, des-cfb, rc4-md5, rc4-md5-6, chacha20, salsa20, rc4, table
 # glider support:
-#    AEAD_AES_128_GCM AEAD_AES_192_GCM AEAD_AES_256_GCM AEAD_CHACHA20_POLY1305 AES-128-CFB AES-128-CTR AES-192-CFB AES-192-CTR AES-256-CFB AES-256-CTR CHACHA20-IETF XCHACHA20
+#    AEAD_AES_128_GCM AEAD_AES_192_GCM AEAD_AES_256_GCM AEAD_CHACHA20_POLY1305 AES-128-CFB AES-128-CTR AES-192-CFB AES-192-CTR AES-256-CFB AES-256-CTR CHACHA20-IETF XCHACHA20 CHACHA20 RC4-MD5
 🇯🇵Eg.Proxy(gost)(ss)ExampleProxy = gost, ss, chacha20:password@server_ip, 12345, gost.txt
 🇨🇳Eg.Proxy(glider)(ss)ExampleProxy = glider, ss, AEAD_AES_256_GCM:password@server_ip, 12345
 # Glider support muti-protocol:

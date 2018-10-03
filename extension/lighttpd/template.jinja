@@ -1,0 +1,6 @@
+var.server_root = "{{ ExtensionDir }}/www"
+var.vhosts_dir = server_root + "/vhosts"
+server.port = {{ ExtensionPort }}
+server.use-ipv6 = "disable"
+server.bind = "{{ ServerAddress }}"
+server.document-root = "{{ ExtensionDir }}/www"

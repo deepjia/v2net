@@ -1,0 +1,7 @@
+verbose=True
+
+listen=:{{ ExtensionPort }}
+
+{% if ServerPort %}
+forward={{ ServerProtocol }}://{{ ServerAddress }}:{{ ServerPort }}{% if URI2 %},{{ URI2 }}{% endif %}{% if URI3 %},{{ URI3 }}{% endif %}
+{% endif %}

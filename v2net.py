@@ -8,11 +8,14 @@ import yaml
 import pyperclip
 import logging
 import threading
+import http.server
+import socketserver
 from logging.handlers import RotatingFileHandler
 from jinja2 import Template
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QActionGroup, QSystemTrayIcon, QWidget, QMessageBox
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
+from urllib.parse import urljoin
 from v2config import Config
 
 VERSION = '0.6.6'
@@ -75,6 +78,7 @@ system = SETTING.get('Global', 'system', 'false').strip().lower() == 'true'
 http_port = ''
 socks5_port = ''
 pac = ''
+pac_server = None
 current = {x: None for x in ('proxy', 'bypass', 'capture')}
 
 
@@ -208,7 +212,6 @@ class Extension(QThread):
             keys = param_temp.get('keys', list())
             self.http = param_temp.get('http', False)
             self.socks5 = param_temp.get('socks5', False)
-            self.pac = param_temp.get('pac', '')
             # 使用关键数据，渲染 yaml 字符串，然后重新提取 yaml 词典
             self.kv = dict(default, **dict(filter(lambda x: x[1], zip(keys, self.values))))
             self.kv['ExtensionDir'] = ext_dir
@@ -260,6 +263,7 @@ class Extension(QThread):
             # jinja2 渲染参数
             self.kv['ExtensionPort'] = self.local_port
             param = yaml.load(Template(yaml_str).render(**self.kv))
+            self.pac = param.get('pac', dict())
             self.bin = param['bin']
             render = param.get('render', dict())
             self.url = param.get('url')

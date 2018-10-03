@@ -10,6 +10,12 @@ while read line; do
         then
             currentservice="$sname"
             case "$1" in
+                pacon)
+                    networksetup -setautoproxyurl "$currentservice" $2
+                    ;;
+                pacoff)
+                    networksetup -setautoproxystate "$currentservice" off
+                    ;;
                 httpon)
                     networksetup -setwebproxy "$currentservice" 127.0.0.1 $2
                     networksetup -setsecurewebproxy "$currentservice" 127.0.0.1 $2
